@@ -1,4 +1,4 @@
-#include <string.h>
+#include "cp_config.h"
 
 #define MAX_ONE_BYTE_LENGTH 0x80
 #define MIN_ONE_BYTE_LENGTH 0x00
@@ -11,20 +11,20 @@
 #define INCLUDE_ZERO_LEADING_BYTES 0
 
 //Same as memcpy provided by the C standard library
-void CP_memcpy(unsigned char * dest, const unsigned char * src, unsigned int len);
+void CP_memcpy(CP_UINT8 * dest, const CP_UINT8 * src, CP_UINT32 len);
 
 // this function is only for internal usage
-static size_t getFirstNonZeroByteOffset(unsigned char * input, size_t bufferSize);
+static CP_UINT32 getFirstNonZeroByteOffset(CP_UINT8 * input, CP_UINT32 bufferSize);
 
-size_t isFieldStructured(unsigned char * input);
+CP_UINT32 isFieldStructured(CP_UINT8 * input);
 
-size_t getStructuredFieldDataOffset(unsigned char * input);
+CP_UINT32 getStructuredFieldDataOffset(CP_UINT8 * input);
 
-size_t getTag(unsigned char * input);
+CP_UINT32 getTag(CP_UINT8 * input);
 
 //this function is only for internal usage
-static size_t getExtendedSizeField(unsigned char * input, size_t sizeFieldLength);
+static CP_UINT32 getExtendedSizeField(CP_UINT8 * input, CP_UINT32 sizeFieldLength);
 
-size_t getNextFieldOffset(unsigned char * input);
+CP_UINT32 getNextFieldOffset(CP_UINT8 * input);
 
-size_t getField(unsigned char * buffer, size_t bufferSize, unsigned char * input, unsigned char ignoreZeroLeadingBytes);
+CP_UINT32 getField(CP_UINT8 * buffer, CP_UINT32 bufferSize, CP_UINT8 * input, CP_UINT8 ignoreZeroLeadingBytes);

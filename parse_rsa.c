@@ -1,32 +1,29 @@
 #include "parse_der.h"
-#include <string.h>
-#include <stdint.h>
-
 #include "parse_rsa.h"
 
-int parseRsaPrivateKey(unsigned char * keyDerInput, RsaPrivateKey * rsaKey)
+int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
 {
-  unsigned char * sequenceOffset;
-  unsigned char * versionOffset;
-  unsigned char * modulusOffset;
-  unsigned char * pubExpOffset;
-  unsigned char * privExpOffset;
-  unsigned char * pOffset;
-  unsigned char * qOffset;
-  unsigned char * d_mod_p1_Offset;
-  unsigned char * d_mod_q1_Offset;
-  unsigned char * inv_q_mod_p_Offset;
+  CP_UINT8 * sequenceOffset;
+  CP_UINT8 * versionOffset;
+  CP_UINT8 * modulusOffset;
+  CP_UINT8 * pubExpOffset;
+  CP_UINT8 * privExpOffset;
+  CP_UINT8 * pOffset;
+  CP_UINT8 * qOffset;
+  CP_UINT8 * d_mod_p1_Offset;
+  CP_UINT8 * d_mod_q1_Offset;
+  CP_UINT8 * inv_q_mod_p_Offset;
 
-  unsigned char version;
+  CP_UINT8 version;
 
-  size_t rsaModulusByteSize;
-  size_t rsaPubExpByteSize;
-  size_t rsaPrivExpByteSize;
-  size_t rsa_p_size;
-  size_t rsa_q_size;
-  size_t rsa_d_mod_p1_ByteSize;
-  size_t rsa_d_mod_q1_ByteSize;
-  size_t rsa_inv_q_mod_p_ByteSize;
+  CP_UINT32 rsaModulusByteSize;
+  CP_UINT32 rsaPubExpByteSize;
+  CP_UINT32 rsaPrivExpByteSize;
+  CP_UINT32 rsa_p_size;
+  CP_UINT32 rsa_q_size;
+  CP_UINT32 rsa_d_mod_p1_ByteSize;
+  CP_UINT32 rsa_d_mod_q1_ByteSize;
+  CP_UINT32 rsa_inv_q_mod_p_ByteSize;
 
   sequenceOffset = keyDerInput;
   if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
@@ -105,7 +102,7 @@ int parseRsaPrivateKey(unsigned char * keyDerInput, RsaPrivateKey * rsaKey)
     int i;
   #endif
 
-  getField( ((unsigned char *) &version) , 1, versionOffset, INCLUDE_ZERO_LEADING_BYTES);
+  getField( ((CP_UINT8 *) &version) , 1, versionOffset, INCLUDE_ZERO_LEADING_BYTES);
 
   #if (DBGMSG == 1)
     LOG_INFO("Parsed the version :");
@@ -115,7 +112,7 @@ int parseRsaPrivateKey(unsigned char * keyDerInput, RsaPrivateKey * rsaKey)
   #endif
 
   rsaModulusByteSize = getField(rsaKey->modulus, MODULUS_BYTE_SIZE, modulusOffset, IGNORE_ZERO_LEADING_BYTES);
-  rsaKey->keyBitSize = ((uint16_t) rsaModulusByteSize) * 8;
+  rsaKey->keyBitSize = ((CP_UINT16) rsaModulusByteSize) * 8;
 
   #if (DBGMSG == 1)
     LOG_INFO("Parsed the modulus :");
@@ -128,13 +125,13 @@ int parseRsaPrivateKey(unsigned char * keyDerInput, RsaPrivateKey * rsaKey)
   #endif
 
 
-  rsaPubExpByteSize = getField((unsigned char *) &(rsaKey->pubExp), PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
+  rsaPubExpByteSize = getField((CP_UINT8 *) &(rsaKey->pubExp), PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
 
   #if (DBGMSG == 1)
     LOG_INFO("Parsed the public exponent :");
     printf("------- BEGIN PUBLIC EXPONENT (e) -------\n");
     for (i = 0; i < rsaPubExpByteSize; i++) {
-      printf("%02x, ", ((unsigned char *) &(rsaKey->pubExp))[i]);
+      printf("%02x, ", ((CP_UINT8 *) &(rsaKey->pubExp))[i]);
     }
     printf("\n");
     printf("------- END PUBLIC EXPONENT -------\n");
