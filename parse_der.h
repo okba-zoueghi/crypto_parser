@@ -10,6 +10,9 @@
 #define IGNORE_ZERO_LEADING_BYTES 1
 #define INCLUDE_ZERO_LEADING_BYTES 0
 
+//Same as memcpy provided by the C standard library
+void CP_memcpy(unsigned char * dest, const unsigned char * src, unsigned int len);
+
 // this function is only for internal usage
 static size_t getFirstNonZeroByteOffset(unsigned char * input, size_t bufferSize);
 

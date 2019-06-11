@@ -3,6 +3,17 @@
 #include <string.h>
 #include <stdint.h>
 
+void CP_memcpy(unsigned char * dest, const unsigned char * src, unsigned int len)
+{
+  unsigned int i;
+
+  for(i = 0; i < len; i++)
+  {
+    dest[i] = src[i];
+  }
+
+}
+
 static size_t getFirstNonZeroByteOffset(unsigned char * input, size_t inputSize)
 {
   size_t countZeroBytes = 0;
@@ -99,7 +110,7 @@ size_t getField(unsigned char * buffer, size_t bufferSize, unsigned char * input
       dataSize -= countZeroBytes;
     }
 
-    memcpy(buffer, input + dataOffset, dataSize);
+    CP_memcpy(buffer, input + dataOffset, dataSize);
   }
   else
   {
@@ -115,7 +126,7 @@ size_t getField(unsigned char * buffer, size_t bufferSize, unsigned char * input
       dataSize -= countZeroBytes;
     }
 
-    memcpy(buffer, input + dataOffset, dataSize);
+    CP_memcpy(buffer, input + dataOffset, dataSize);
   }
 
   return dataSize;
