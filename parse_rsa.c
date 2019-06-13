@@ -305,6 +305,11 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
 
     modulusOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
   }
+  else
+  {
+    LOG_ERROR("Key format unkown");
+    return -1;
+  }
 
 
   if (getTag(modulusOffset) != ASN1_INTEGER_TAG)
