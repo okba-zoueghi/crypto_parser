@@ -212,3 +212,143 @@ int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
 
   return 0;
 }
+
+int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat)
+{
+  CP_UINT8 * modulusOffset;
+  CP_UINT8 * pubExpOffset;
+  CP_UINT32 rsaModulusByteSize;
+  CP_UINT32 rsaPubExpByteSize;
+
+  if (keyFormat == PKCS_8_UNENCRYPTED)
+  {
+    CP_UINT8 * outerSequenceOffset;
+    CP_UINT8 * innerSequenceOffset;
+    CP_UINT8 * oidOffset;
+    CP_UINT8 * nullOffset;
+    CP_UINT8 * bitStringOffset;
+    CP_UINT8 * bitStringSequenceOffset;
+
+    outerSequenceOffset = keyDerInput;
+
+    if(getTag(outerSequenceOffset) != ASN1_SEQUENCE_TAG)
+    {
+      LOG_ERROR("Failed to parse the sequence");
+      return -1;
+    }
+
+    innerSequenceOffset = outerSequenceOffset + getStructuredFieldDataOffset(outerSequenceOffset);
+
+    if(getTag(innerSequenceOffset) != ASN1_SEQUENCE_TAG)
+    {
+      LOG_ERROR("Failed to parse the sequence");
+      return -1;
+    }
+
+    oidOffset = innerSequenceOffset + getStructuredFieldDataOffset(innerSequenceOffset);
+
+    if(getTag(oidOffset) != ASN1_OID_TAG)
+    {
+      LOG_ERROR("Failed to parse the oid");
+      return -1;
+    }
+
+    CP_UINT8 * oidDataOffset = oidOffset + 2;
+
+    CP_UINT8 count;
+    for (count = 0; count < RSA_PUBLIC_KEY_OID_SIZE; count++)
+    {
+      if (oidDataOffset[count] != RSA_PUBLIC_KEY_OID[count])
+      {
+        LOG_ERROR("The Object Identifier doesn't correspond to public key");
+        return -1;
+      }
+    }
+
+    nullOffset = oidOffset + getNextFieldOffset(oidOffset);
+
+    if(getTag(nullOffset) != ASN1_NULL_TAG)
+    {
+      LOG_ERROR("Failed to parse the null field");
+      return -1;
+    }
+
+    bitStringOffset = innerSequenceOffset + getNextFieldOffset(innerSequenceOffset);
+
+    if(getTag(bitStringOffset) != ASN1_BIT_STRING_TAG)
+    {
+      LOG_ERROR("Failed to parse the bit string");
+      return -1;
+    }
+
+    bitStringSequenceOffset = bitStringOffset + getStructuredFieldDataOffset(bitStringOffset) + 1;// +1 -> ignore the first byte of the data
+
+    if(getTag(bitStringSequenceOffset) != ASN1_SEQUENCE_TAG)
+    {
+      LOG_ERROR("Failed to parse the sequence");
+      return -1;
+    }
+
+    modulusOffset = bitStringSequenceOffset + getStructuredFieldDataOffset(bitStringSequenceOffset);
+  }
+  else if (keyFormat == PKCS_1)
+  {
+    CP_UINT8 * sequenceOffset;
+
+    sequenceOffset = keyDerInput;
+    if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
+    {
+      LOG_ERROR("Failed to parse the sequence");
+      return -1;
+    }
+    LOG_INFO("Parsed the sequence");
+
+    modulusOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
+  }
+
+
+  if (getTag(modulusOffset) != ASN1_INTEGER_TAG)
+  {
+    LOG_ERROR("Failed to parse the modulus");
+    return -1;
+  }
+
+  pubExpOffset = modulusOffset + getNextFieldOffset(modulusOffset);
+  if (getTag(pubExpOffset) != ASN1_INTEGER_TAG)
+  {
+    LOG_ERROR("Failed to parse the public exponent");
+    return -1;
+  }
+
+  #if (DBGMSG == 1)
+    int i;
+  #endif
+
+  rsaModulusByteSize = getField(rsaKey->modulus, MODULUS_BYTE_SIZE, modulusOffset, IGNORE_ZERO_LEADING_BYTES);
+  rsaKey->keyBitSize = ((CP_UINT16) rsaModulusByteSize) * 8;
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed the modulus :");
+    printf("------- BEGIN MODULUS (n) -------\n");
+    for (i = 0; i < rsaModulusByteSize; i++) {
+      printf("%02x, ", rsaKey->modulus[i]);
+    }
+    printf("\n");
+    printf("------- END MODULUS -------\n");
+  #endif
+
+
+  rsaPubExpByteSize = getField((CP_UINT8 *) &(rsaKey->pubExp), PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed the public exponent :");
+    printf("------- BEGIN PUBLIC EXPONENT (e) -------\n");
+    for (i = 0; i < rsaPubExpByteSize; i++) {
+      printf("%02x, ", ((CP_UINT8 *) &(rsaKey->pubExp))[i]);
+    }
+    printf("\n");
+    printf("------- END PUBLIC EXPONENT -------\n");
+  #endif
+
+
+}
