@@ -10,8 +10,8 @@ int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
 	sequenceOffset = dhParamDerInput;
 	if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
 	{
-		LOG_ERROR("Failed to parse the sequence");
-		return -1;
+	  LOG_ERROR("Failed to parse the sequence");
+	  return -1;
 	}
 	LOG_INFO("Parsed the sequence");
 
