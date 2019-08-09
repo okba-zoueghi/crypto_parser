@@ -10,24 +10,24 @@ int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
 	sequenceOffset = dhParamDerInput;
 	if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
 	{
-		LOG_ERROR("Failed to parse the sequence");
-		return -1;
+	  LOG_ERROR("Failed to parse the sequence");
+	  return -1;
 	}
 	LOG_INFO("Parsed the sequence");
 
 	dhPrimeOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
-  if (getTag(dhPrimeOffset) != ASN1_INTEGER_TAG)
-  {
-    LOG_ERROR("Failed to parse the dhPrime");
-    return -1;
-  }
+  	if (getTag(dhPrimeOffset) != ASN1_INTEGER_TAG)
+  	{
+    	  LOG_ERROR("Failed to parse the dhPrime");
+    	  return -1;
+  	}
 
 	dhGeneratorOffset = dhPrimeOffset + getNextFieldOffset(dhPrimeOffset);
-  if (getTag(dhGeneratorOffset) != ASN1_INTEGER_TAG)
-  {
-    LOG_ERROR("Failed to parse the dhGenerator");
-    return -1;
-  }
+  	if (getTag(dhGeneratorOffset) != ASN1_INTEGER_TAG)
+  	{
+    	  LOG_ERROR("Failed to parse the dhGenerator");
+    	  return -1;
+  	}
 
 	#if (DBGMSG == 1)
 		int i;
