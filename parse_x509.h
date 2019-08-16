@@ -22,6 +22,10 @@
 
 #include "cp_config.h"
 
+/* x509 */
+#define SIGNATURE_ALGORITHM_OID_SIZE 20
+#define SIGNATURE_SIZE 512
+
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
 static const CP_UINT8 RSA_PKCS1_OID[] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01};
@@ -32,7 +36,7 @@ static const CP_UINT8 RSA_PKCS1_OID[] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x0
 #define RSA_SSA_PKCS_V_1_5_SHA1_OID 0x05
 #define RSA_SSA_PKCS_V_1_5_SHA224_OID 0x0E
 #define RSA_SSA_PKCS_V_1_5_SHA256_OID 0x0B
-#define RSA_SSA_PKCS_V_1_5_SHA384_OID 0x0E
+#define RSA_SSA_PKCS_V_1_5_SHA384_OID 0x0C
 #define RSA_SSA_PKCS_V_1_5_SHA512_OID 0x0D
 #define RSA_SSA_PKCS_V_1_5_SHA_512_224_OID 0x0F
 #define RSA_SSA_PKCS_V_1_5_SHA_512_256_OID 0x10
@@ -103,3 +107,35 @@ AlgorithmIdentifier  ::=  SEQUENCE  {
         parameters              ANY DEFINED BY algorithm OPTIONAL  }
 
 */
+
+/* TODO TBSCertificate
+typedef struct
+{
+
+}tbsCertificate;
+*/
+
+/* Signature Algorithm */
+typedef struct
+{
+  CP_UINT8 algorithmOid[SIGNATURE_ALGORITHM_OID_SIZE];
+  CP_UINT8 algorithmOidSize;
+  /* TODO Parameters */
+}SignatureAlgorithm;
+
+
+typedef struct
+{
+  /* TODO TBSCertificate */
+
+  /* Signature Algorithm */
+  SignatureAlgorithm signatureAlgorithm;
+
+  /* Signature Value */
+  CP_UINT8 signatureValue[SIGNATURE_SIZE];
+
+}X509Cert;
+
+int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm);
+
+int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert);
