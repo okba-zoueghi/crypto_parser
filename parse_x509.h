@@ -24,7 +24,8 @@
 
 /* x509 */
 #define SIGNATURE_ALGORITHM_OID_SIZE 20
-#define SIGNATURE_SIZE 512
+/* 512 signature size + 1 byte for bit string header */
+#define SIGNATURE_SIZE 513
 
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
@@ -123,6 +124,16 @@ typedef struct
   /* TODO Parameters */
 }SignatureAlgorithm;
 
+/* Signature Value */
+typedef struct
+{
+  /* stores the bit string data --> 1 byte header + the signature */
+  CP_UINT8 signatureValueBitString[SIGNATURE_SIZE];
+  /* points to the signature value --> signatureValueBitString + 1 */
+  CP_UINT8 * signatureValue;
+  /* the size of the signature */
+  CP_UINT16 signatureValueSize;
+}SignatureValue;
 
 typedef struct
 {
@@ -132,10 +143,12 @@ typedef struct
   SignatureAlgorithm signatureAlgorithm;
 
   /* Signature Value */
-  CP_UINT8 signatureValue[SIGNATURE_SIZE];
+  SignatureValue signatureValue;
 
 }X509Cert;
 
 int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm);
+
+int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue);
 
 int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert);

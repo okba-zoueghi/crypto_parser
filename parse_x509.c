@@ -135,6 +135,38 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
   return 0;
 }
 
+int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
+{
+  if(getTag(x509CertSigValDerOffset) != ASN1_BIT_STRING_TAG)
+  {
+    LOG_ERROR("Failed to parse the signature value");
+    return -1;
+  }
+
+  signatureValue->signatureValueSize = getField(signatureValue->signatureValueBitString, SIGNATURE_SIZE, x509CertSigValDerOffset,
+    INCLUDE_ZERO_LEADING_BYTES);
+
+  /* Ignore the first byte as it belongs to header of the bit string */
+  signatureValue->signatureValue = signatureValue->signatureValueBitString + 1;
+  signatureValue->signatureValueSize -= 1;
+
+  #if (DBGMSG == 1)
+    int i;
+  #endif
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed the signature value :");
+    printf("------- BEGIN signature value -------\n");
+    for (i = 0; i < signatureValue->signatureValueSize; i++) {
+      printf("%02x, ", signatureValue->signatureValue[i]);
+    }
+    printf("\n");
+    printf("------- END signature value -------\n");
+  #endif
+
+  return 0;
+}
+
 int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
 {
 
@@ -158,11 +190,16 @@ int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
   }
   LOG_INFO("Parsed the sequence");
 
-  tbsCertificateOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
   /* TODO Parse tbsCertificate */
+  tbsCertificateOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
 
+  /* Parse the signature algorithm */
   signatureAlgorithmOffset = tbsCertificateOffset + getNextFieldOffset(tbsCertificateOffset);
   parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(x509Cert->signatureAlgorithm));
+
+  /* Parse the signature value */
+  signatureValueOffset = signatureAlgorithmOffset + getNextFieldOffset(signatureAlgorithmOffset);
+  parseX509SignatureValue(signatureValueOffset, &(x509Cert->signatureValue));
 
   return 0;
 }
