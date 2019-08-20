@@ -33,7 +33,7 @@
 #define CONTEXT_SPECEFIC_CLASS 0x80
 #define PRIVATE_CLASS 0xC0
 
-/* Tags */
+/* Universal Tags */
 #define ASN1_SEQUENCE_TAG 0x10
 #define ASN1_BOOLEAN_TAG 0x01
 #define ASN1_INTEGER_TAG 0x02
@@ -48,6 +48,9 @@
 #define ASN1_UNIVERSAL_STRING_TAG 0x1C
 #define ASN1_UTF8_STRING_TAG 0x0C
 #define ASN1_BMP_STRING_TAG 0x1E
+
+/* Context Specefic Tags */
+#define ASN1_CONTEXT_SPECEFIC_X509_VERSION_TAG 0
 
 /* Others */
 #define MAX_ONE_BYTE_LENGTH 0x80
