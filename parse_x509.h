@@ -24,6 +24,7 @@
 
 /* x509 */
 #define SIGNATURE_ALGORITHM_OID_SIZE 20
+#define SERIAL_NUMBER_MAX_SIZE 20
 /* 512 signature size + 1 byte for bit string header */
 #define SIGNATURE_SIZE 513
 
@@ -130,12 +131,6 @@ AlgorithmIdentifier  ::=  SEQUENCE  {
 
 */
 
-/* TODO TBSCertificate
-typedef struct
-{
-
-}tbsCertificate;
-*/
 
 /* Signature Algorithm */
 typedef struct
@@ -156,9 +151,20 @@ typedef struct
   CP_UINT16 signatureValueSize;
 }SignatureValue;
 
+/* TBSCertificate */
 typedef struct
 {
-  /* TODO TBSCertificate */
+  CP_UINT8 version;
+  CP_UINT8 serialNumber[SERIAL_NUMBER_MAX_SIZE];
+  CP_UINT8 serialNumberSize;
+  SignatureAlgorithm signatureAlgorithm;
+
+}TbsCertificate;
+
+typedef struct
+{
+  /* TBSCertificate */
+  TbsCertificate tbsCertificate;
 
   /* Signature Algorithm */
   SignatureAlgorithm signatureAlgorithm;
