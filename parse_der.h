@@ -70,6 +70,8 @@ CP_UINT32 getStructuredFieldDataOffset(CP_UINT8 * input);
 
 CP_UINT32 getTag(CP_UINT8 * input);
 
+CP_UINT8 getClass(CP_UINT8 * input);
+
 //this function is only for internal usage
 static CP_UINT32 getExtendedSizeField(CP_UINT8 * input, CP_UINT32 sizeFieldLength);
 

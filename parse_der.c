@@ -68,6 +68,14 @@ CP_UINT32 getStructuredFieldDataOffset(CP_UINT8 * input)
   return startOffset;
 }
 
+CP_UINT8 getClass(CP_UINT8 * input)
+{
+  // input[0] --> 2 bits for the class | 1 bit to specify if the type is structured or primitive | 5 bits for the tag
+  // TAG_MASK --> define as 0x1F --> 00011111 : mask to get the tag value
+  CP_UINT8 class = input[0] & CLASS_MASK;
+  return class;
+}
+
 CP_UINT32 getTag(CP_UINT8 * input)
 {
   // input[0] --> 2 bits for the class | 1 bit to specify if the type is structured or primitive | 5 bits for the tag
