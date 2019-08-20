@@ -30,6 +30,10 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   CP_UINT8 * versionOffset;
   CP_UINT8 * certificateSerialNumberOffset;
   CP_UINT8 * signatureAlgorithmOffset;
+  CP_UINT8 * issuerOffset;
+  CP_UINT8 * validityOffset;
+  CP_UINT8 * validityNotBeforeOffset;
+  CP_UINT8 * validityNotAfterOffset;
 
   CP_UINT8 class;
   class = getClass(firstElementOffset);
@@ -107,6 +111,110 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
 
   signatureAlgorithmOffset = certificateSerialNumberOffset + getNextFieldOffset(certificateSerialNumberOffset);
   parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(tbsCertificate->signatureAlgorithm));
+
+  /* TODO Parse issuer */
+  issuerOffset = signatureAlgorithmOffset + getNextFieldOffset(signatureAlgorithmOffset);
+
+  validityOffset = issuerOffset + getNextFieldOffset(issuerOffset);
+
+  validityNotBeforeOffset = validityOffset + getStructuredFieldDataOffset(validityOffset);
+
+  switch (getTag(validityNotBeforeOffset))
+  {
+    case ASN1_GENERALIZED_TIME_TAG:
+      tbsCertificate->validity.isValidityNotBeforeInGenFormat = 1;
+      break;
+    case ASN1_UTC_TIME_TAG:
+      tbsCertificate->validity.isValidityNotBeforeInGenFormat = 0;
+      break;
+
+    default:
+      LOG_ERROR("Time format unrecognized");
+      return -1;
+      break;
+  }
+
+
+  tbsCertificate->validity.validityNotBeforeSize = getField(tbsCertificate->validity.validityNotBefore, TIME_STRING_MAX_SIZE,
+    validityNotBeforeOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+  #ifdef DBGMSG
+  switch (tbsCertificate->validity.isValidityNotBeforeInGenFormat)
+  {
+    case 1:
+      printf("Not valid before %c%c%c%c/%c%c/%c%c\n",
+        tbsCertificate->validity.validityNotBefore[0],
+        tbsCertificate->validity.validityNotBefore[1],
+        tbsCertificate->validity.validityNotBefore[2],
+        tbsCertificate->validity.validityNotBefore[3],
+        tbsCertificate->validity.validityNotBefore[4],
+        tbsCertificate->validity.validityNotBefore[5],
+        tbsCertificate->validity.validityNotBefore[6],
+        tbsCertificate->validity.validityNotBefore[7]);
+      break;
+    case 0:
+      printf("Not valid before 20%c%c/%c%c/%c%c\n",
+        tbsCertificate->validity.validityNotBefore[0],
+        tbsCertificate->validity.validityNotBefore[1],
+        tbsCertificate->validity.validityNotBefore[2],
+        tbsCertificate->validity.validityNotBefore[3],
+        tbsCertificate->validity.validityNotBefore[4],
+        tbsCertificate->validity.validityNotBefore[5]);
+      break;
+
+    default:
+      break;
+  }
+  #endif
+
+  validityNotAfterOffset = validityNotBeforeOffset + getNextFieldOffset(validityNotBeforeOffset);
+
+  switch (getTag(validityNotAfterOffset))
+  {
+    case ASN1_GENERALIZED_TIME_TAG:
+      tbsCertificate->validity.isValidityNotAfterInGenFormat = 1;
+      break;
+    case ASN1_UTC_TIME_TAG:
+      tbsCertificate->validity.isValidityNotAfterInGenFormat = 0;
+      break;
+
+    default:
+      LOG_ERROR("Time format unrecognized");
+      return -1;
+      break;
+  }
+
+  tbsCertificate->validity.validityNotAfterSize = getField(tbsCertificate->validity.validityNotAfter, TIME_STRING_MAX_SIZE,
+    validityNotAfterOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+  #ifdef DBGMSG
+  switch (tbsCertificate->validity.isValidityNotAfterInGenFormat)
+  {
+    case 1:
+      printf("Not valid after %c%c%c%c/%c%c/%c%c\n",
+        tbsCertificate->validity.validityNotAfter[0],
+        tbsCertificate->validity.validityNotAfter[1],
+        tbsCertificate->validity.validityNotAfter[2],
+        tbsCertificate->validity.validityNotAfter[3],
+        tbsCertificate->validity.validityNotAfter[4],
+        tbsCertificate->validity.validityNotAfter[5],
+        tbsCertificate->validity.validityNotAfter[6],
+        tbsCertificate->validity.validityNotAfter[7]);
+      break;
+    case 0:
+      printf("Not valid after 20%c%c/%c%c/%c%c\n",
+        tbsCertificate->validity.validityNotAfter[0],
+        tbsCertificate->validity.validityNotAfter[1],
+        tbsCertificate->validity.validityNotAfter[2],
+        tbsCertificate->validity.validityNotAfter[3],
+        tbsCertificate->validity.validityNotAfter[4],
+        tbsCertificate->validity.validityNotAfter[5]);
+      break;
+
+    default:
+      break;
+  }
+  #endif
 
   return 0;
 }

@@ -25,8 +25,8 @@
 /* x509 */
 #define SIGNATURE_ALGORITHM_OID_SIZE 20
 #define SERIAL_NUMBER_MAX_SIZE 20
-/* 512 signature size + 1 byte for bit string header */
-#define SIGNATURE_SIZE 513
+#define TIME_STRING_MAX_SIZE 40
+#define SIGNATURE_SIZE 513 /* 512 signature size + 1 byte for bit string header */
 
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
@@ -151,6 +151,17 @@ typedef struct
   CP_UINT16 signatureValueSize;
 }SignatureValue;
 
+/* Validity (needed inside TbsCertificate)*/
+typedef struct
+{
+  CP_UINT8 validityNotBefore[TIME_STRING_MAX_SIZE];
+  CP_UINT8 isValidityNotBeforeInGenFormat;
+  CP_UINT8 validityNotBeforeSize;
+  CP_UINT8 validityNotAfter[TIME_STRING_MAX_SIZE];
+  CP_UINT8 isValidityNotAfterInGenFormat;
+  CP_UINT8 validityNotAfterSize;
+}Validity;
+
 /* TBSCertificate */
 typedef struct
 {
@@ -158,6 +169,7 @@ typedef struct
   CP_UINT8 serialNumber[SERIAL_NUMBER_MAX_SIZE];
   CP_UINT8 serialNumberSize;
   SignatureAlgorithm signatureAlgorithm;
+  Validity validity;
 
 }TbsCertificate;
 
