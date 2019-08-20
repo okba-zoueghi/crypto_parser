@@ -23,6 +23,93 @@
 #include "parse_der.h"
 #include "parse_x509.h"
 
+int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
+{
+  CP_UINT8 * sequenceOffset = x509TbsCertDerOffset;
+  CP_SINT8 * firstElementOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
+  CP_UINT8 * versionOffset;
+  CP_UINT8 * certificateSerialNumberOffset;
+  CP_UINT8 * signatureAlgorithmOffset;
+
+  CP_UINT8 class;
+  class = getClass(firstElementOffset);
+
+  CP_UINT8 isFirstElementVersion;
+
+  /* If the class of the first element is context specific, the the first element is the version */
+  if (class == CONTEXT_SPECEFIC_CLASS)
+  {
+    CP_UINT8 * explicitWrapper = firstElementOffset;
+
+    if(getTag(explicitWrapper) != ASN1_CONTEXT_SPECEFIC_X509_VERSION_TAG)
+    {
+      LOG_ERROR("Failed to parse the version");
+      return -1;
+    }
+
+    versionOffset = explicitWrapper + getStructuredFieldDataOffset(explicitWrapper);
+
+    if(getTag(versionOffset) != ASN1_INTEGER_TAG)
+    {
+      LOG_ERROR("Failed to parse the version");
+      return -1;
+    }
+
+    getField(&(tbsCertificate->version), 1, versionOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+    /*
+      version 1 in encoded as 0
+      version 2 is encoded as 1
+      version 3 is encoded as 2
+      increment to get the right version value
+    */
+    tbsCertificate->version += 1;
+
+    certificateSerialNumberOffset = versionOffset + getNextFieldOffset(versionOffset);
+  }
+  // the class is universal, then the first element is the certificate serial number */
+  else
+  {
+    /* The version is not specified, then use the default value */
+    tbsCertificate->version = 1;
+
+    certificateSerialNumberOffset = firstElementOffset;
+  }
+
+  #if (DBGMSG == 1)
+    int i;
+  #endif
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed the version :");
+    printf("------- BEGIN VERSION -------\n");
+    printf("%02x\n", tbsCertificate->version);
+    printf("------- END VERSION -------\n");
+  #endif
+
+  if(getTag(certificateSerialNumberOffset) != ASN1_INTEGER_TAG)
+  {
+    LOG_ERROR("Failed to parse the certificate serial number");
+    return -1;
+  }
+
+  tbsCertificate->serialNumberSize = getField(tbsCertificate->serialNumber, SERIAL_NUMBER_MAX_SIZE, certificateSerialNumberOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed serial number :");
+    printf("------- BEGIN Serial Number -------\n");
+    for (i = 0; i < tbsCertificate->serialNumberSize; i++) {
+      printf("%02x, ", tbsCertificate->serialNumber[i]);
+    }
+    printf("\n");
+    printf("------- END Serial Number -------\n");
+  #endif
+
+  signatureAlgorithmOffset = certificateSerialNumberOffset + getNextFieldOffset(certificateSerialNumberOffset);
+  parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(tbsCertificate->signatureAlgorithm));
+
+  return 0;
+}
 
 int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
 {
@@ -190,8 +277,9 @@ int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
   }
   LOG_INFO("Parsed the sequence");
 
-  /* TODO Parse tbsCertificate */
+  /* Parse tbsCertificate */
   tbsCertificateOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
+  parseX509TbsCertificate(tbsCertificateOffset, &(x509Cert->tbsCertificate));
 
   /* Parse the signature algorithm */
   signatureAlgorithmOffset = tbsCertificateOffset + getNextFieldOffset(tbsCertificateOffset);
