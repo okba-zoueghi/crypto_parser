@@ -24,9 +24,11 @@
 
 /* x509 */
 #define SIGNATURE_ALGORITHM_OID_SIZE 20
+#define PUBLIC_KEY_OID_SIZE 20
 #define SERIAL_NUMBER_MAX_SIZE 20
 #define TIME_STRING_MAX_SIZE 40
 #define SIGNATURE_SIZE 513 /* 512 signature size + 1 byte for bit string header */
+#define PUBLIC_KEY_MAX_SIZE 512
 
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
@@ -47,10 +49,15 @@ static const CP_UINT8 RSA_PKCS1_OID[] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x0
 /* ANSI X9.62 OID (Needed for ECDSA)*/
 #define AINSI_X962_OID_SIZE 5
 static const CP_UINT8 AINSI_X962_SIGNATURES_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04};
+static const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02};
 
 /* ECDSA Signature Algorithms Object Identifiers (OIDs) */
 #define ECDSA_SHA1_OID 0x01
 #define ECDSA_SHA2_OID 0x03
+
+/* Public Keys OIDs */
+#define RSA_PUB_KEY_OID 0x01
+#define ECDSA_PUB_KEY_OID 0x01
 
 /* Attribute Type OID (needed for identifying the subject's and the ussuer's attributes) */
 #define ATTRIBUTE_TYPE_OID_SIZE 2
@@ -162,6 +169,16 @@ typedef struct
   CP_UINT8 validityNotAfterSize;
 }Validity;
 
+/* Public key */
+typedef struct
+{
+  CP_UINT8 algorithmOid[PUBLIC_KEY_OID_SIZE];
+  CP_UINT8 algorithmOidSize;
+  CP_UINT8 publicKeyBitString[PUBLIC_KEY_MAX_SIZE + 1];
+  CP_UINT8 * publicKey;
+  CP_UINT16 publicKeySize;
+} PublicKeyInfo;
+
 /* TBSCertificate */
 typedef struct
 {
@@ -170,7 +187,7 @@ typedef struct
   CP_UINT8 serialNumberSize;
   SignatureAlgorithm signatureAlgorithm;
   Validity validity;
-
+  PublicKeyInfo publicKeyInfo;
 }TbsCertificate;
 
 typedef struct

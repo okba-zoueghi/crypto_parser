@@ -34,6 +34,11 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   CP_UINT8 * validityOffset;
   CP_UINT8 * validityNotBeforeOffset;
   CP_UINT8 * validityNotAfterOffset;
+  CP_UINT8 * subjectOffset;
+  CP_UINT8 * publicKeyInfoOffset;
+  CP_UINT8 * publicAlgorithmIdentifierSequenceOffset;
+  CP_UINT8 * publicAlgorithmIdentifierOffset;
+  CP_UINT8 * publicKeyOffset;
 
   CP_UINT8 class;
   class = getClass(firstElementOffset);
@@ -214,6 +219,119 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
     default:
       break;
   }
+  #endif
+
+  /* TODO Parse subject */
+  subjectOffset = validityOffset + getNextFieldOffset(validityOffset);
+
+  publicKeyInfoOffset = subjectOffset + getNextFieldOffset(subjectOffset);
+
+  if (getTag(publicKeyInfoOffset) != ASN1_SEQUENCE_TAG)
+  {
+    LOG_ERROR("Failed to parse the public key info sequence");
+    return -1;
+  }
+
+  publicAlgorithmIdentifierSequenceOffset = publicKeyInfoOffset + getStructuredFieldDataOffset(publicKeyInfoOffset);
+
+  if (getTag(publicAlgorithmIdentifierSequenceOffset) != ASN1_SEQUENCE_TAG)
+  {
+    LOG_ERROR("Failed to parse the public key algorithm sequence");
+    return -1;
+  }
+
+  publicAlgorithmIdentifierOffset = publicAlgorithmIdentifierSequenceOffset + getStructuredFieldDataOffset(publicAlgorithmIdentifierSequenceOffset);
+
+  if (getTag(publicAlgorithmIdentifierOffset) != ASN1_OID_TAG)
+  {
+    LOG_ERROR("Failed to parse the public key algorithm OID");
+    return -1;
+  }
+
+  tbsCertificate->publicKeyInfo.algorithmOidSize = getField(tbsCertificate->publicKeyInfo.algorithmOid, PUBLIC_KEY_OID_SIZE,
+    publicAlgorithmIdentifierOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+  CP_UINT8 rsaBased = 1;
+  CP_UINT8 ecdsaBased = 1;
+  CP_UINT8 * oidDataOffset = publicAlgorithmIdentifierOffset + 2;
+
+  CP_UINT8 count;
+
+  /* look if it is RSA based algorithm */
+  for (count = 0; count < RSA_PKCS1_OID_SIZE; count++)
+  {
+    if (oidDataOffset[count] != RSA_PKCS1_OID[count])
+    {
+      rsaBased = 0;
+    }
+  }
+
+  /* loof if it is ECDSA based algorithm */
+  if (!rsaBased)
+  {
+    for (count = 0; count < AINSI_X962_OID_SIZE; count++)
+    {
+      if (oidDataOffset[count] != AINSI_X962_PUBLICKEYS_OID[count])
+      {
+        ecdsaBased = 0;
+      }
+    }
+  }
+
+  if(rsaBased)
+  {
+    switch (tbsCertificate->publicKeyInfo.algorithmOid[8])
+    {
+      case RSA_PUB_KEY_OID:
+        LOG_INFO("Pulic Key Algorithm : RSA");
+        break;
+
+      default:
+        LOG_ERROR("Unrecognized Algorithm");
+        return -1;
+    }
+  }
+  else if(ecdsaBased)
+  {
+    switch (tbsCertificate->publicKeyInfo.algorithmOid[6])
+    {
+      case ECDSA_PUB_KEY_OID:
+        LOG_INFO("Pulic Key Algorithm : ECDSA");
+        break;
+
+      default:
+        LOG_ERROR("Unrecognized Algorithm");
+        return -1;
+    }
+  }
+  else
+  {
+    LOG_ERROR("Unrecognized Algorithm");
+    return -1;
+  }
+
+  publicKeyOffset = publicAlgorithmIdentifierSequenceOffset + getNextFieldOffset(publicAlgorithmIdentifierSequenceOffset);
+
+  if (getTag(publicKeyOffset) != ASN1_BIT_STRING_TAG)
+  {
+    LOG_ERROR("Failed to parse the public key");
+    return -1;
+  }
+
+  tbsCertificate->publicKeyInfo.publicKeySize = getField(tbsCertificate->publicKeyInfo.publicKeyBitString, PUBLIC_KEY_MAX_SIZE + 1,
+    publicKeyOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+  tbsCertificate->publicKeyInfo.publicKeySize--;
+  tbsCertificate->publicKeyInfo.publicKey = tbsCertificate->publicKeyInfo.publicKeyBitString + 1;
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed the public key :");
+    printf("------- BEGIN public key -------\n");
+    for (i = 0; i < tbsCertificate->publicKeyInfo.publicKeySize; i++) {
+      printf("%02x, ", tbsCertificate->publicKeyInfo.publicKey[i]);
+    }
+    printf("\n");
+    printf("------- END public key -------\n");
   #endif
 
   return 0;
