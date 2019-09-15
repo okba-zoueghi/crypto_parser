@@ -275,16 +275,67 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
           return -1;
         }
 
-        getField(tbsCertificate->issuer.country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+        getField(tbsCertificate->subject.country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
 
         #if (DBGMSG == 1)
           LOG_INFO("Parsed country name:");
           printf("------- BEGIN country name -------\n");
           for (i = 0; i < COUNTRY_NAME_SIZE; i++) {
-            printf("%C", tbsCertificate->issuer.country[i]);
+            printf("%C", tbsCertificate->subject.country[i]);
           }
           printf("\n");
           printf("------- END country name -------\n");
+        #endif
+
+        break;
+
+      case ATTRIBUTE_TYPE_STATE_OR_PROVINCE_NAME_OID:
+
+        tbsCertificate->subject.stateSize = getField(tbsCertificate->subject.state, STATE_OR_PROVINCE_NAME_MAX_SIZE,
+          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed state:");
+          printf("------- BEGIN state -------\n");
+          for (i = 0; i < tbsCertificate->subject.stateSize; i++) {
+            printf("%c", tbsCertificate->subject.state[i]);
+          }
+          printf("\n");
+          printf("------- END state -------\n");
+        #endif
+
+        break;
+
+      case ATTRIBUTE_TYPE_ORGANIZATION_NAME_OID:
+
+        tbsCertificate->subject.organizationSize = getField(tbsCertificate->subject.organization, ORGANIZATION_NAME_MAX_SIZE,
+          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed organization:");
+          printf("------- BEGIN organization -------\n");
+          for (i = 0; i < tbsCertificate->subject.organizationSize; i++) {
+            printf("%c", tbsCertificate->subject.organization[i]);
+          }
+          printf("\n");
+          printf("------- END organization -------\n");
+        #endif
+
+        break;
+
+      case ATTRIBUTE_TYPE_COMMON_NAME_OID:
+
+        tbsCertificate->subject.commonNameSize = getField(tbsCertificate->subject.commonName, COMMON_NAME_MAX_SIZE,
+          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed organization:");
+          printf("------- BEGIN organization -------\n");
+          for (i = 0; i < tbsCertificate->subject.commonNameSize; i++) {
+            printf("%c", tbsCertificate->subject.commonName[i]);
+          }
+          printf("\n");
+          printf("------- END organization -------\n");
         #endif
 
         break;
