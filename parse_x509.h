@@ -227,4 +227,6 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
 
 int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue);
 
+int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
+
 int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert);

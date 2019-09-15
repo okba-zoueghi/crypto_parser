@@ -603,6 +603,138 @@ int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue *
   return 0;
 }
 
+int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
+{
+  CP_UINT8 * endOfNameAttributesOffset = x509NameAttributesOffset + getNextFieldOffset(x509NameAttributesOffset);
+  CP_UINT8 * attributeSetOffset = x509NameAttributesOffset + getStructuredFieldDataOffset(x509NameAttributesOffset);
+
+  do
+  {
+    if (getTag(attributeSetOffset) != ASN1_SET_TAG)
+    {
+      LOG_ERROR("Failed to parse the attribute set");
+      return -1;
+    }
+
+    CP_UINT8 * attributeSequenceOffset = attributeSetOffset + getStructuredFieldDataOffset(attributeSetOffset);
+
+    if (getTag(attributeSequenceOffset) != ASN1_SEQUENCE_TAG)
+    {
+      LOG_ERROR("Failed to parse the attribute sequence");
+      return -1;
+    }
+
+    CP_UINT8 * attributeOidOffset = attributeSequenceOffset + getStructuredFieldDataOffset(attributeSequenceOffset);
+
+    if (getTag(attributeOidOffset) != ASN1_OID_TAG)
+    {
+      LOG_ERROR("Failed to parse the attribute OID");
+      return -1;
+    }
+
+    CP_UINT8 * oidDataOffset = attributeOidOffset + 2;
+
+    CP_UINT8 count;
+
+    for (count = 0; count < ATTRIBUTE_TYPE_OID_SIZE; count++)
+    {
+      if (oidDataOffset[count] != ATTRIBUTE_TYPE_OID[count])
+      {
+        LOG_ERROR("Unrecognized attribute OID");
+        return -1;
+      }
+    }
+
+    #if (DBGMSG == 1)
+      int i;
+    #endif
+
+    CP_UINT8 * attributeDataOffset = attributeOidOffset + getNextFieldOffset(attributeOidOffset);
+
+    switch (oidDataOffset[2])
+    {
+      case ATTRIBUTE_TYPE_COUNTRY_NAME_OID:
+
+        if (getTag(attributeDataOffset) != ASN1_PRINTABLE_STRING_TAG)
+        {
+          LOG_ERROR("Failed to parse the country name");
+          return -1;
+        }
+
+        getField(nameAttributes->country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed country name:");
+          printf("------- BEGIN country name -------\n");
+          for (i = 0; i < COUNTRY_NAME_SIZE; i++) {
+            printf("%C", nameAttributes->country[i]);
+          }
+          printf("\n");
+          printf("------- END country name -------\n");
+        #endif
+
+        break;
+
+      case ATTRIBUTE_TYPE_STATE_OR_PROVINCE_NAME_OID:
+
+        nameAttributes->stateSize = getField(nameAttributes->state, STATE_OR_PROVINCE_NAME_MAX_SIZE,
+          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed state:");
+          printf("------- BEGIN state -------\n");
+          for (i = 0; i < nameAttributes->stateSize; i++) {
+            printf("%c", nameAttributes->state[i]);
+          }
+          printf("\n");
+          printf("------- END state -------\n");
+        #endif
+
+        break;
+
+      case ATTRIBUTE_TYPE_ORGANIZATION_NAME_OID:
+
+        nameAttributes->organizationSize = getField(nameAttributes->organization, ORGANIZATION_NAME_MAX_SIZE,
+          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed organization:");
+          printf("------- BEGIN organization -------\n");
+          for (i = 0; i < nameAttributes->organizationSize; i++) {
+            printf("%c", nameAttributes->organization[i]);
+          }
+          printf("\n");
+          printf("------- END organization -------\n");
+        #endif
+
+        break;
+
+      case ATTRIBUTE_TYPE_COMMON_NAME_OID:
+
+        nameAttributes->commonNameSize = getField(nameAttributes->commonName, COMMON_NAME_MAX_SIZE,
+          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed common name:");
+          printf("------- BEGIN common name -------\n");
+          for (i = 0; i < nameAttributes->commonNameSize; i++) {
+            printf("%c", nameAttributes->commonName[i]);
+          }
+          printf("\n");
+          printf("------- END common name -------\n");
+        #endif
+
+        break;
+
+      default:
+        break;
+    }
+
+  } while((attributeSetOffset += getNextFieldOffset(attributeSetOffset)) != endOfNameAttributesOffset);
+
+  return 0;
+}
+
 int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
 {
 
