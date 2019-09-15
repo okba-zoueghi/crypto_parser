@@ -35,6 +35,7 @@
 
 /* Universal Tags */
 #define ASN1_SEQUENCE_TAG 0x10
+#define ASN1_SET_TAG 0x11
 #define ASN1_BOOLEAN_TAG 0x01
 #define ASN1_INTEGER_TAG 0x02
 #define ASN1_BIT_STRING_TAG 0x03

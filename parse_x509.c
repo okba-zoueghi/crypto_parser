@@ -223,6 +223,78 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
 
   /* TODO Parse subject */
   subjectOffset = validityOffset + getNextFieldOffset(validityOffset);
+  CP_UINT8 * endOfSubjectOffset = subjectOffset + getNextFieldOffset(subjectOffset);
+  CP_UINT8 * attributeSetOffset = subjectOffset + getStructuredFieldDataOffset(subjectOffset);
+
+  do
+  {
+    if (getTag(attributeSetOffset) != ASN1_SET_TAG)
+    {
+      LOG_ERROR("Failed to parse the attribute set");
+      return -1;
+    }
+
+    CP_UINT8 * attributeSequenceOffset = attributeSetOffset + getStructuredFieldDataOffset(attributeSetOffset);
+
+    if (getTag(attributeSequenceOffset) != ASN1_SEQUENCE_TAG)
+    {
+      LOG_ERROR("Failed to parse the attribute sequence");
+      return -1;
+    }
+
+    CP_UINT8 * attributeOidOffset = attributeSequenceOffset + getStructuredFieldDataOffset(attributeSequenceOffset);
+
+    if (getTag(attributeOidOffset) != ASN1_OID_TAG)
+    {
+      LOG_ERROR("Failed to parse the attribute OID");
+      return -1;
+    }
+
+    CP_UINT8 * oidDataOffset = attributeOidOffset + 2;
+
+    CP_UINT8 count;
+
+    for (count = 0; count < ATTRIBUTE_TYPE_OID_SIZE; count++)
+    {
+      if (oidDataOffset[count] != ATTRIBUTE_TYPE_OID[count])
+      {
+        LOG_ERROR("Unrecognized attribute OID");
+        return -1;
+      }
+    }
+
+    CP_UINT8 * attributeDataOffset = attributeOidOffset + getNextFieldOffset(attributeOidOffset);
+
+    switch (oidDataOffset[2])
+    {
+      case ATTRIBUTE_TYPE_COUNTRY_NAME_OID:
+
+        if (getTag(attributeDataOffset) != ASN1_PRINTABLE_STRING_TAG)
+        {
+          LOG_ERROR("Failed to parse the country name");
+          return -1;
+        }
+
+        getField(tbsCertificate->issuer.country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+        #if (DBGMSG == 1)
+          LOG_INFO("Parsed country name:");
+          printf("------- BEGIN country name -------\n");
+          for (i = 0; i < COUNTRY_NAME_SIZE; i++) {
+            printf("%C", tbsCertificate->issuer.country[i]);
+          }
+          printf("\n");
+          printf("------- END country name -------\n");
+        #endif
+
+        break;
+
+      default:
+        break;
+    }
+
+  } while((attributeSetOffset += getNextFieldOffset(attributeSetOffset)) != endOfSubjectOffset);
+
 
   publicKeyInfoOffset = subjectOffset + getNextFieldOffset(subjectOffset);
 

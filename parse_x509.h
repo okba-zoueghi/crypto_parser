@@ -29,6 +29,10 @@
 #define TIME_STRING_MAX_SIZE 40
 #define SIGNATURE_SIZE 513 /* 512 signature size + 1 byte for bit string header */
 #define PUBLIC_KEY_MAX_SIZE 512
+#define COUNTRY_NAME_SIZE 2
+#define STATE_OR_PROVINCE_NAME_MAX_SIZE 128
+#define ORGANIZATION_NAME_MAX_SIZE 64
+#define COMMON_NAME_MAX_SIZE 64
 
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
@@ -169,6 +173,18 @@ typedef struct
   CP_UINT8 validityNotAfterSize;
 }Validity;
 
+/* Subject and issuer attributes */
+typedef struct
+{
+  CP_UINT8 country[COUNTRY_NAME_SIZE];
+  CP_UINT8 state[STATE_OR_PROVINCE_NAME_MAX_SIZE];
+  CP_UINT8 stateSize;
+  CP_UINT8 organization[ORGANIZATION_NAME_MAX_SIZE];
+  CP_UINT8 organizationSize;
+  CP_UINT8 commonName[COMMON_NAME_MAX_SIZE];
+  CP_UINT8 commonNameSize;
+} NameAttributes;
+
 /* Public key */
 typedef struct
 {
@@ -186,7 +202,9 @@ typedef struct
   CP_UINT8 serialNumber[SERIAL_NUMBER_MAX_SIZE];
   CP_UINT8 serialNumberSize;
   SignatureAlgorithm signatureAlgorithm;
+  NameAttributes issuer;
   Validity validity;
+  NameAttributes subject;
   PublicKeyInfo publicKeyInfo;
 }TbsCertificate;
 
