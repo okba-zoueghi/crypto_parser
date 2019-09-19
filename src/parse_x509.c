@@ -143,7 +143,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   tbsCertificate->validity.validityNotBeforeSize = getField(tbsCertificate->validity.validityNotBefore, TIME_STRING_MAX_SIZE,
     validityNotBeforeOffset, INCLUDE_ZERO_LEADING_BYTES);
 
-  #ifdef DBGMSG
+  #if (DBGMSG == 1)
   switch (tbsCertificate->validity.isValidityNotBeforeInGenFormat)
   {
     case 1:
@@ -192,7 +192,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   tbsCertificate->validity.validityNotAfterSize = getField(tbsCertificate->validity.validityNotAfter, TIME_STRING_MAX_SIZE,
     validityNotAfterOffset, INCLUDE_ZERO_LEADING_BYTES);
 
-  #ifdef DBGMSG
+  #if (DBGMSG == 1)
   switch (tbsCertificate->validity.isValidityNotAfterInGenFormat)
   {
     case 1:
