@@ -8,8 +8,14 @@ include_directories(
 	${PROJECT_SOURCE_DIR}/include/
 )
 
+link_directories(
+  ${PROJECT_SOURCE_DIR}/build
+)
+
 add_library(sharedlib SHARED ${SOURCES})
 add_library(staticlib STATIC ${SOURCES})
 
 set_target_properties(sharedlib PROPERTIES OUTPUT_NAME cryptoparser)
 set_target_properties(staticlib PROPERTIES OUTPUT_NAME cryptoparser)
+
+add_subdirectory(samples)
