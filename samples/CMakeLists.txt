@@ -1,0 +1,2 @@
+add_executable(crypto_parser cp_parser_cmdline.c)
+target_link_libraries(crypto_parser cryptoparser)
