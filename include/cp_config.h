@@ -37,7 +37,7 @@
  * Set this MACRO to 1 to print the logs. (the printf function from the C standard library is used)
  * Set this MACRO to 0 to deactivate the logs.
  */
-#define DBGMSG 0
+#define DBGMSG 1
 
 /******************************************************************************/
 /* End                                                                        */
