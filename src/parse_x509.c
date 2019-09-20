@@ -285,10 +285,12 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
     {
       case RSA_PUB_KEY_OID:
         LOG_INFO("Pulic Key Algorithm : RSA");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_RSA;
         break;
 
       default:
         LOG_ERROR("Unrecognized Algorithm");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
         return -1;
     }
   }
@@ -298,16 +300,19 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
     {
       case ECDSA_PUB_KEY_OID:
         LOG_INFO("Pulic Key Algorithm : ECDSA");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_ECDSA;
         break;
 
       default:
         LOG_ERROR("Unrecognized Algorithm");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
         return -1;
     }
   }
   else
   {
     LOG_ERROR("Unrecognized Algorithm");
+    tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
     return -1;
   }
 
@@ -386,37 +391,48 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
     {
       case RSA_SSA_PKCS_V_1_5_MD2_OID:
         LOG_INFO("SignatureAlgorithm :  RSA_SSA_PKCS_V_1_5_MD2");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_MD2;
         break;
       case RSA_SSA_PKCS_V_1_5_MD5_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_MD5");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_MD5;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA1_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA1");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA1;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA224_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA224");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA224;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA256_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA256");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA256;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA384_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA384");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA384;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA512_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA512");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA512;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA_512_224_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA_512_224");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA_512_224;
         break;
       case RSA_SSA_PKCS_V_1_5_SHA_512_256_OID:
         LOG_INFO("SignatureAlgorithm : RSA_SSA_PKCS_V_1_5_SHA_512_256");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PKCS_V_1_5_SHA_512_256;
         break;
       case RSA_SSA_PSS_OID:
         LOG_INFO("RSA_SSA_PSS");
+        signatureAlgorithm->eSigAlg = RSA_SSA_PSS;
         break;
 
       default:
         LOG_ERROR("Unrecognized signature algorithm");
+        signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
         return -1;
         break;
     }
@@ -428,13 +444,16 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
     {
       case ECDSA_SHA1_OID:
         LOG_INFO("SignatureAlgorithm : ECDSA_SHA1");
+        signatureAlgorithm->eSigAlg = ECDSA_SHA1;
         break;
       case ECDSA_SHA2_OID:
         LOG_INFO("SignatureAlgorithm : ECDSA_SHA2");
+        signatureAlgorithm->eSigAlg = ECDSA_SHA2;
         break;
 
       default:
         LOG_ERROR("Unrecognized signature algorithm");
+        signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
         return -1;
         break;
     }
@@ -443,6 +462,7 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
   else
   {
     LOG_ERROR("Unrecognized signature algorithm");
+    signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
     return -1;
   }
 

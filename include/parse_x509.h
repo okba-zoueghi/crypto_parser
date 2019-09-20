@@ -145,6 +145,29 @@ AlgorithmIdentifier  ::=  SEQUENCE  {
 
 */
 
+typedef enum
+{
+  RSA_SSA_PKCS_V_1_5_MD2 = 0,
+  RSA_SSA_PKCS_V_1_5_MD5,
+  RSA_SSA_PKCS_V_1_5_SHA1,
+  RSA_SSA_PKCS_V_1_5_SHA224,
+  RSA_SSA_PKCS_V_1_5_SHA256,
+  RSA_SSA_PKCS_V_1_5_SHA384,
+  RSA_SSA_PKCS_V_1_5_SHA512,
+  RSA_SSA_PKCS_V_1_5_SHA_512_224,
+  RSA_SSA_PKCS_V_1_5_SHA_512_256,
+  RSA_SSA_PSS,
+  ECDSA_SHA1,
+  ECDSA_SHA2,
+  UNRECOGNIZED_SIGNATURE_ALGORITHM
+}SignatureAlgorithmEnum;
+
+typedef enum
+{
+  PUBLIC_KEY_INFO_RSA,
+  PUBLIC_KEY_INFO_ECDSA,
+  PUBLIC_KEY_INFO_UNRECOGNIZED
+}PublicKeyInfoEnum;
 
 /* Signature Algorithm */
 typedef struct
@@ -152,6 +175,7 @@ typedef struct
   CP_UINT8 algorithmOid[SIGNATURE_ALGORITHM_OID_SIZE];
   CP_UINT8 algorithmOidSize;
   /* TODO Parameters */
+  SignatureAlgorithmEnum eSigAlg;
 }SignatureAlgorithm;
 
 /* Signature Value */
@@ -196,6 +220,7 @@ typedef struct
   CP_UINT8 publicKeyBitString[PUBLIC_KEY_MAX_SIZE + 1];
   CP_UINT8 * publicKey;
   CP_UINT16 publicKeySize;
+  PublicKeyInfoEnum ePublicKeyInfo;
 } PublicKeyInfo;
 
 /* TBSCertificate */

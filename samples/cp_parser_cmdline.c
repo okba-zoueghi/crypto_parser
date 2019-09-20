@@ -47,6 +47,8 @@ typedef enum
 
 void print_usage(void);
 
+void printX509(X509Cert * x509Cert);
+
 int main(int argc, char **argv)
 {
 
@@ -127,6 +129,7 @@ int main(int argc, char **argv)
     {
       X509Cert x509Cert;
       parseX509Cert(objectData, &x509Cert);
+      printX509(&x509Cert);
       break;
     }
 
@@ -175,4 +178,204 @@ void print_usage(void)
     "     x509Cert|rsaPubKey|rsaPrivKey|dhParam|dsaParam\n\n"\
     "-f   specify the file to parse in DER format\n";
   printf("%s\n", usage);
+}
+
+void printX509(X509Cert * x509Cert)
+{
+  int i = 0;
+
+  printf("Certificate:\n");
+
+  printf("\t Version:\n");
+  printf("\t\t %d\n", x509Cert->tbsCertificate.version);
+
+  printf("\t Serial Number:\n");
+  printf("\t\t ");
+  for (i = 0; i < x509Cert->tbsCertificate.serialNumberSize; i++)
+  {
+    if( (i > 0) && ((i % 20) == 0) )
+      printf("\n\t\t\t ");
+    printf("%02X:",x509Cert->tbsCertificate.serialNumber[i]);
+  }
+  printf("\n");
+
+  printf("\t Signature Algorithm:\n");
+  printf("\t\t ");
+  switch (x509Cert->tbsCertificate.signatureAlgorithm.eSigAlg)
+  {
+    case RSA_SSA_PKCS_V_1_5_MD2 :
+      printf("RSA_SSA_PKCS_V_1_5_MD2\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_MD5 :
+      printf("RSA_SSA_PKCS_V_1_5_MD5\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA1 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA1\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA224 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA224\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA256 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA256\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA384 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA384\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA512 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA512\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA_512_224 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA_512_224\n");
+      break;
+    case RSA_SSA_PKCS_V_1_5_SHA_512_256 :
+      printf("RSA_SSA_PKCS_V_1_5_SHA_512_256\n");
+      break;
+    case RSA_SSA_PSS :
+      printf("RSA_SSA_PSS\n");
+      break;
+    case ECDSA_SHA1 :
+      printf("ECDSA_SHA1\n");
+      break;
+    case ECDSA_SHA2 :
+      printf("ECDSA_SHA2\n");
+      break;
+  }
+
+  printf("\t Issuer:\n");
+  printf("\t\t Country (C) : ");
+  for (i = 0; i < 2; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.issuer.country[i]);
+  }
+  printf("\n");
+  printf("\t\t State or Province (ST) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.issuer.stateSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.issuer.state[i]);
+  }
+  printf("\n");
+  printf("\t\t Organization (O) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.issuer.organizationSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.issuer.organization[i]);
+  }
+  printf("\n");
+  printf("\t\t Common Name (CN) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.issuer.commonNameSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.issuer.commonName[i]);
+  }
+  printf("\n");
+
+  printf("\t Validity:\n");
+  printf("\t\t Not Valid before : ");
+  switch (x509Cert->tbsCertificate.validity.isValidityNotBeforeInGenFormat)
+  {
+    case 1:
+      printf("%c%c%c%c/%c%c/%c%c\n",
+        x509Cert->tbsCertificate.validity.validityNotBefore[0],
+        x509Cert->tbsCertificate.validity.validityNotBefore[1],
+        x509Cert->tbsCertificate.validity.validityNotBefore[2],
+        x509Cert->tbsCertificate.validity.validityNotBefore[3],
+        x509Cert->tbsCertificate.validity.validityNotBefore[4],
+        x509Cert->tbsCertificate.validity.validityNotBefore[5],
+        x509Cert->tbsCertificate.validity.validityNotBefore[6],
+        x509Cert->tbsCertificate.validity.validityNotBefore[7]);
+      break;
+    case 0:
+      printf("20%c%c/%c%c/%c%c\n",
+        x509Cert->tbsCertificate.validity.validityNotBefore[0],
+        x509Cert->tbsCertificate.validity.validityNotBefore[1],
+        x509Cert->tbsCertificate.validity.validityNotBefore[2],
+        x509Cert->tbsCertificate.validity.validityNotBefore[3],
+        x509Cert->tbsCertificate.validity.validityNotBefore[4],
+        x509Cert->tbsCertificate.validity.validityNotBefore[5]);
+      break;
+
+    default:
+      break;
+  }
+  printf("\t\t Not Valid After : ");
+  switch (x509Cert->tbsCertificate.validity.isValidityNotAfterInGenFormat)
+  {
+    case 1:
+      printf("%c%c%c%c/%c%c/%c%c\n",
+        x509Cert->tbsCertificate.validity.validityNotAfter[0],
+        x509Cert->tbsCertificate.validity.validityNotAfter[1],
+        x509Cert->tbsCertificate.validity.validityNotAfter[2],
+        x509Cert->tbsCertificate.validity.validityNotAfter[3],
+        x509Cert->tbsCertificate.validity.validityNotAfter[4],
+        x509Cert->tbsCertificate.validity.validityNotAfter[5],
+        x509Cert->tbsCertificate.validity.validityNotAfter[6],
+        x509Cert->tbsCertificate.validity.validityNotAfter[7]);
+      break;
+    case 0:
+      printf("20%c%c/%c%c/%c%c\n",
+        x509Cert->tbsCertificate.validity.validityNotAfter[0],
+        x509Cert->tbsCertificate.validity.validityNotAfter[1],
+        x509Cert->tbsCertificate.validity.validityNotAfter[2],
+        x509Cert->tbsCertificate.validity.validityNotAfter[3],
+        x509Cert->tbsCertificate.validity.validityNotAfter[4],
+        x509Cert->tbsCertificate.validity.validityNotAfter[5]);
+      break;
+
+    default:
+      break;
+  }
+
+  printf("\t Subject:\n");
+  printf("\t\t Country (C) : ");
+  for (i = 0; i < 2; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.subject.country[i]);
+  }
+  printf("\n");
+  printf("\t\t State or Province (ST) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.subject.stateSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.subject.state[i]);
+  }
+  printf("\n");
+  printf("\t\t Organization (O) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.subject.organizationSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.subject.organization[i]);
+  }
+  printf("\n");
+  printf("\t\t Common Name (CN) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.subject.commonNameSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.subject.commonName[i]);
+  }
+  printf("\n");
+
+  printf("\t Public Key Algorithm: ");
+  switch (x509Cert->tbsCertificate.publicKeyInfo.ePublicKeyInfo)
+  {
+    case PUBLIC_KEY_INFO_RSA:
+      printf("RSA\n");
+      break;
+    case PUBLIC_KEY_INFO_ECDSA:
+      printf("ECDSA\n");
+      break;
+  }
+  printf("\t\t ");
+  for (i = 0; i < x509Cert->tbsCertificate.publicKeyInfo.publicKeySize; i++)
+  {
+    if( (i > 0) && ((i % 20) == 0) )
+      printf("\n\t\t ");
+    printf("%02X:",x509Cert->tbsCertificate.publicKeyInfo.publicKey[i]);
+  }
+  printf("\n");
+
+  printf("\t Signature:\n");
+  printf("\t\t ");
+  for (i = 0; i < x509Cert->signatureValue.signatureValueSize; i++)
+  {
+    if( (i > 0) && ((i % 20) == 0) )
+      printf("\n\t\t ");
+    printf("%02X:",x509Cert->signatureValue.signatureValue[i]);
+  }
+  printf("\n");
+
 }
