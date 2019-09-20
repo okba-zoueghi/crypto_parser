@@ -20,6 +20,9 @@
 
 */
 
+#ifndef CP_PARSE_RSA_H_
+#define CP_PARSE_RSA_H_
+
 #include "cp_config.h"
 
 #define RSA_MAX_KEY_BIT_SIZE 4096
@@ -80,3 +83,5 @@ typedef struct
 int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey);
 
 int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat);
+
+#endif

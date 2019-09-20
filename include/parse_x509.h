@@ -20,6 +20,9 @@
 
 */
 
+#ifndef CP_PARSE_X509_H_
+#define CP_PARSE_X509_H_
+
 #include "cp_config.h"
 
 /* x509 */
@@ -230,3 +233,5 @@ int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue *
 int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
 
 int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert);
+
+#endif

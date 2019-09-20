@@ -20,6 +20,9 @@
 
 */
 
+#ifndef CP_PARSE_DSA_H_
+#define CP_PARSE_DSA_H_
+
 #include "cp_config.h"
 
 #define DSA_PARAM_BIT_SIZE 3072
@@ -82,3 +85,5 @@ int parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam);
 int parseDsaPrivateKey(CP_UINT8 * dsaPrivateKeyDerInput, DsaPrivateKey * dsaPrivateKey);
 int parseDsaPublicKey(CP_UINT8 * dsaPublicKeyDerInput, DsaPublicKey * dsaPublicKey);
 */
+
+#endif

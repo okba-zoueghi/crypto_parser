@@ -19,6 +19,8 @@
   along with crypto_parser.  If not, see <https://www.gnu.org/licenses/>.
 
 */
+#ifndef CP_PARSE_DER_H_
+#define CP_PARSE_DER_H_
 
 #include "cp_config.h"
 
@@ -79,3 +81,5 @@ static CP_UINT32 getExtendedSizeField(CP_UINT8 * input, CP_UINT32 sizeFieldLengt
 CP_UINT32 getNextFieldOffset(CP_UINT8 * input);
 
 CP_UINT32 getField(CP_UINT8 * buffer, CP_UINT32 bufferSize, CP_UINT8 * input, CP_UINT8 ignoreZeroLeadingBytes);
+
+#endif

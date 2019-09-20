@@ -20,6 +20,9 @@
 
 */
 
+#ifndef CP_PARSE_DHPARAM_H_
+#define CP_PARSE_DHPARAM_H_
+
 #include "cp_config.h"
 
 #define DH_PARAM_BIT_SIZE 1024
@@ -43,3 +46,5 @@ typedef struct
 }DhParam;
 
 int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam);
+
+#endif
