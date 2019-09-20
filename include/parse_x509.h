@@ -31,7 +31,7 @@
 #define SERIAL_NUMBER_MAX_SIZE 20
 #define TIME_STRING_MAX_SIZE 40
 #define SIGNATURE_SIZE 513 /* 512 signature size + 1 byte for bit string header */
-#define PUBLIC_KEY_MAX_SIZE 512
+#define PUBLIC_KEY_MAX_SIZE 540 /* 512 (modulus) + 3 ( public exponent) + 25 (DER encoding overhead) */
 #define COUNTRY_NAME_SIZE 2
 #define STATE_OR_PROVINCE_NAME_MAX_SIZE 128
 #define ORGANIZATION_NAME_MAX_SIZE 64
