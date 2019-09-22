@@ -45,6 +45,6 @@ typedef struct
 	CP_UINT16 dhGeneratorSize;
 }DhParam;
 
-int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam);
+CPErrorCode parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam);
 
 #endif

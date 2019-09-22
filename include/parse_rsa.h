@@ -80,8 +80,8 @@ typedef struct
   CP_UINT16 keyBitSize;
 }RsaPublicKey;
 
-int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey);
+CPErrorCode parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey);
 
-int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat);
+CPErrorCode parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat);
 
 #endif

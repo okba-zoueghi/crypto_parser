@@ -23,7 +23,7 @@
 #include "parse_der.h"
 #include "parse_dhparam.h"
 
-int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
+CPErrorCode parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
 {
 	CP_UINT8 * sequenceOffset;
 	CP_UINT8 * dhPrimeOffset;
@@ -33,7 +33,7 @@ int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
 	if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
 	{
 	  LOG_ERROR("Failed to parse the sequence");
-	  return -1;
+	  return CP_ERROR;
 	}
 	LOG_INFO("Parsed the sequence");
 
@@ -41,14 +41,14 @@ int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
   	if (getTag(dhPrimeOffset) != ASN1_INTEGER_TAG)
   	{
     	  LOG_ERROR("Failed to parse the dhPrime");
-    	  return -1;
+    	  return CP_ERROR;
   	}
 
 	dhGeneratorOffset = dhPrimeOffset + getNextFieldOffset(dhPrimeOffset);
   	if (getTag(dhGeneratorOffset) != ASN1_INTEGER_TAG)
   	{
     	  LOG_ERROR("Failed to parse the dhGenerator");
-    	  return -1;
+    	  return CP_ERROR;
   	}
 
 	#if (DBGMSG == 1)
@@ -79,5 +79,5 @@ int parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam)
 		printf("------- END DH Generator -------\n");
 	#endif
 
-	return 0;
+	return CP_SUCCESS;
 }

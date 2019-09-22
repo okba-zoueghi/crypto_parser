@@ -23,7 +23,7 @@
 #include "parse_der.h"
 #include "parse_x509.h"
 
-int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
+CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
   CP_UINT8 * sequenceOffset = x509TbsCertDerOffset;
   CP_SINT8 * firstElementOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
@@ -53,7 +53,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
     if(getTag(explicitWrapper) != ASN1_CONTEXT_SPECEFIC_X509_VERSION_TAG)
     {
       LOG_ERROR("Failed to parse the version");
-      return -1;
+      return CP_ERROR;
     }
 
     versionOffset = explicitWrapper + getStructuredFieldDataOffset(explicitWrapper);
@@ -61,7 +61,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
     if(getTag(versionOffset) != ASN1_INTEGER_TAG)
     {
       LOG_ERROR("Failed to parse the version");
-      return -1;
+      return CP_ERROR;
     }
 
     getField(&(tbsCertificate->version), 1, versionOffset, INCLUDE_ZERO_LEADING_BYTES);
@@ -99,7 +99,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   if(getTag(certificateSerialNumberOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the certificate serial number");
-    return -1;
+    return CP_ERROR;
   }
 
   tbsCertificate->serialNumberSize = getField(tbsCertificate->serialNumber, SERIAL_NUMBER_MAX_SIZE, certificateSerialNumberOffset, INCLUDE_ZERO_LEADING_BYTES);
@@ -135,7 +135,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
 
     default:
       LOG_ERROR("Time format unrecognized");
-      return -1;
+      return CP_ERROR;
       break;
   }
 
@@ -185,7 +185,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
 
     default:
       LOG_ERROR("Time format unrecognized");
-      return -1;
+      return CP_ERROR;
       break;
   }
 
@@ -230,7 +230,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   if (getTag(publicKeyInfoOffset) != ASN1_SEQUENCE_TAG)
   {
     LOG_ERROR("Failed to parse the public key info sequence");
-    return -1;
+    return CP_ERROR;
   }
 
   publicAlgorithmIdentifierSequenceOffset = publicKeyInfoOffset + getStructuredFieldDataOffset(publicKeyInfoOffset);
@@ -238,7 +238,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   if (getTag(publicAlgorithmIdentifierSequenceOffset) != ASN1_SEQUENCE_TAG)
   {
     LOG_ERROR("Failed to parse the public key algorithm sequence");
-    return -1;
+    return CP_ERROR;
   }
 
   publicAlgorithmIdentifierOffset = publicAlgorithmIdentifierSequenceOffset + getStructuredFieldDataOffset(publicAlgorithmIdentifierSequenceOffset);
@@ -246,7 +246,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   if (getTag(publicAlgorithmIdentifierOffset) != ASN1_OID_TAG)
   {
     LOG_ERROR("Failed to parse the public key algorithm OID");
-    return -1;
+    return CP_ERROR;
   }
 
   tbsCertificate->publicKeyInfo.algorithmOidSize = getField(tbsCertificate->publicKeyInfo.algorithmOid, PUBLIC_KEY_OID_SIZE,
@@ -291,7 +291,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
       default:
         LOG_ERROR("Unrecognized Algorithm");
         tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
-        return -1;
+        return CP_ERROR;
     }
   }
   else if(ecdsaBased)
@@ -306,14 +306,14 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
       default:
         LOG_ERROR("Unrecognized Algorithm");
         tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
-        return -1;
+        return CP_ERROR;
     }
   }
   else
   {
     LOG_ERROR("Unrecognized Algorithm");
     tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
-    return -1;
+    return CP_ERROR;
   }
 
   publicKeyOffset = publicAlgorithmIdentifierSequenceOffset + getNextFieldOffset(publicAlgorithmIdentifierSequenceOffset);
@@ -321,7 +321,7 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
   if (getTag(publicKeyOffset) != ASN1_BIT_STRING_TAG)
   {
     LOG_ERROR("Failed to parse the public key");
-    return -1;
+    return CP_ERROR;
   }
 
   tbsCertificate->publicKeyInfo.publicKeySize = getField(tbsCertificate->publicKeyInfo.publicKeyBitString, PUBLIC_KEY_MAX_SIZE + 1,
@@ -340,10 +340,10 @@ int parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tb
     printf("------- END public key -------\n");
   #endif
 
-  return 0;
+  return CP_SUCCESS;
 }
 
-int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
+CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
 {
   CP_UINT8 * sequenceOffset = x509CertSigAlgDerOffset;
   CP_UINT8 * algorithmOidOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
@@ -351,7 +351,7 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
   if(getTag(algorithmOidOffset) != ASN1_OID_TAG)
   {
     LOG_ERROR("Failed to parse the signature algorithm OID");
-    return -1;
+    return CP_ERROR;
   }
 
   signatureAlgorithm->algorithmOidSize = getField(signatureAlgorithm->algorithmOid, SIGNATURE_ALGORITHM_OID_SIZE,
@@ -433,7 +433,7 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
       default:
         LOG_ERROR("Unrecognized signature algorithm");
         signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
-        return -1;
+        return CP_ERROR;
         break;
     }
   }
@@ -454,7 +454,7 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
       default:
         LOG_ERROR("Unrecognized signature algorithm");
         signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
-        return -1;
+        return CP_ERROR;
         break;
     }
   }
@@ -463,18 +463,18 @@ int parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlg
   {
     LOG_ERROR("Unrecognized signature algorithm");
     signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
-    return -1;
+    return CP_ERROR;
   }
 
-  return 0;
+  return CP_SUCCESS;
 }
 
-int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
+CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
 {
   if(getTag(x509CertSigValDerOffset) != ASN1_BIT_STRING_TAG)
   {
     LOG_ERROR("Failed to parse the signature value");
-    return -1;
+    return CP_ERROR;
   }
 
   signatureValue->signatureValueSize = getField(signatureValue->signatureValueBitString, SIGNATURE_SIZE, x509CertSigValDerOffset,
@@ -498,10 +498,10 @@ int parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue *
     printf("------- END signature value -------\n");
   #endif
 
-  return 0;
+  return CP_SUCCESS;
 }
 
-int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
+CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
 {
   CP_UINT8 * endOfNameAttributesOffset = x509NameAttributesOffset + getNextFieldOffset(x509NameAttributesOffset);
   CP_UINT8 * attributeSetOffset = x509NameAttributesOffset + getStructuredFieldDataOffset(x509NameAttributesOffset);
@@ -511,7 +511,7 @@ int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes 
     if (getTag(attributeSetOffset) != ASN1_SET_TAG)
     {
       LOG_ERROR("Failed to parse the attribute set");
-      return -1;
+      return CP_ERROR;
     }
 
     CP_UINT8 * attributeSequenceOffset = attributeSetOffset + getStructuredFieldDataOffset(attributeSetOffset);
@@ -519,7 +519,7 @@ int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes 
     if (getTag(attributeSequenceOffset) != ASN1_SEQUENCE_TAG)
     {
       LOG_ERROR("Failed to parse the attribute sequence");
-      return -1;
+      return CP_ERROR;
     }
 
     CP_UINT8 * attributeOidOffset = attributeSequenceOffset + getStructuredFieldDataOffset(attributeSequenceOffset);
@@ -527,7 +527,7 @@ int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes 
     if (getTag(attributeOidOffset) != ASN1_OID_TAG)
     {
       LOG_ERROR("Failed to parse the attribute OID");
-      return -1;
+      return CP_ERROR;
     }
 
     CP_UINT8 * oidDataOffset = attributeOidOffset + 2;
@@ -539,7 +539,7 @@ int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes 
       if (oidDataOffset[count] != ATTRIBUTE_TYPE_OID[count])
       {
         LOG_ERROR("Unrecognized attribute OID");
-        return -1;
+        return CP_ERROR;
       }
     }
 
@@ -556,7 +556,7 @@ int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes 
         if (getTag(attributeDataOffset) != ASN1_PRINTABLE_STRING_TAG)
         {
           LOG_ERROR("Failed to parse the country name");
-          return -1;
+          return CP_ERROR;
         }
 
         getField(nameAttributes->country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
@@ -630,10 +630,10 @@ int parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes 
 
   } while((attributeSetOffset += getNextFieldOffset(attributeSetOffset)) != endOfNameAttributesOffset);
 
-  return 0;
+  return CP_SUCCESS;
 }
 
-int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
+CPErrorCode parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
 {
 
   CP_UINT8 * sequenceOffset;
@@ -652,7 +652,7 @@ int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
   if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
   {
     LOG_ERROR("Failed to parse the sequence");
-    return -1;
+    return CP_ERROR;
   }
   LOG_INFO("Parsed the sequence");
 
@@ -668,5 +668,5 @@ int parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
   signatureValueOffset = signatureAlgorithmOffset + getNextFieldOffset(signatureAlgorithmOffset);
   parseX509SignatureValue(signatureValueOffset, &(x509Cert->signatureValue));
 
-  return 0;
+  return CP_SUCCESS;
 }

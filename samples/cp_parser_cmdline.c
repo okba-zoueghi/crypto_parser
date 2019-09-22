@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 
       case '?':
         print_usage();
-        return -1;
+        return CP_ERROR;
 
       default:
         break;
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
   if(!oflag || !fflag || !objectType || !fileName)
   {
     print_usage();
-    return -1;
+    return CP_ERROR;
   }
 
   const char * objectTypes[] = { "x509Cert", "rsaPubKey", "rsaPrivKey", "dhParam", "dsaParam"};
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
   if (objectIndex == -1)
   {
     print_usage();
-    return -1;
+    return CP_ERROR;
   }
 
   int fd = open (fileName, O_RDONLY);
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
   if(fd < 0)
   {
     printf("Faild to open \"%s\"\n", fileName);
-    return -1;
+    return CP_ERROR;
   }
 
   void * objectData = (char *) mmap (NULL, fileSize, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
   if (objectData == MAP_FAILED)
   {
     printf("Failed to map \"%s\"\n", fileName);
-    return -1;
+    return CP_ERROR;
   }
 
 
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
   munmap(objectData, fileSize);
   close(fd);
 
-  return 0;
+  return CP_SUCCESS;
 }
 
 void print_usage(void)

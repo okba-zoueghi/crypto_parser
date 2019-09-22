@@ -23,7 +23,7 @@
 #include "parse_der.h"
 #include "parse_dsa.h"
 
-int parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam)
+CPErrorCode parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam)
 {
 	CP_UINT8 * sequenceOffset;
 	CP_UINT8 * pOffset;
@@ -34,7 +34,7 @@ int parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam)
 	if (getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
 	{
 		LOG_ERROR("Failed to parse the sequence");
-		return -1;
+		return CP_ERROR;
 	}
 	LOG_INFO("Parsed the sequence");
 
@@ -42,21 +42,21 @@ int parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam)
 	if (getTag(pOffset) != ASN1_INTEGER_TAG)
 	{
 		LOG_ERROR("Failed to parse p");
-		return -1;
+		return CP_ERROR;
 	}
 
 	qOffset = pOffset + getNextFieldOffset(pOffset);
 	if (getTag(qOffset) != ASN1_INTEGER_TAG)
 	{
 		LOG_ERROR("Failed to parse q");
-		return -1;
+		return CP_ERROR;
 	}
 
 	gOffset = qOffset + getNextFieldOffset(qOffset);
 	if (getTag(gOffset) != ASN1_INTEGER_TAG)
 	{
 		LOG_ERROR("Failed to parse g");
-		return -1;
+		return CP_ERROR;
 	}
 
 	#if (DBGMSG == 1)
@@ -99,5 +99,5 @@ int parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam)
 		printf("------- END DSA G -------\n");
 	#endif
 
-	return 0;
+	return CP_SUCCESS;
 }

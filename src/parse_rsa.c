@@ -23,7 +23,7 @@
 #include "parse_der.h"
 #include "parse_rsa.h"
 
-int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
+CPErrorCode parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
 {
   CP_UINT8 * sequenceOffset;
   CP_UINT8 * versionOffset;
@@ -51,7 +51,7 @@ int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
   if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
   {
     LOG_ERROR("Failed to parse the sequence");
-    return -1;
+    return CP_ERROR;
   }
   LOG_INFO("Parsed the sequence");
 
@@ -59,63 +59,63 @@ int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
   if (getTag(versionOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the sequence");
-    return -1;
+    return CP_ERROR;
   }
 
   modulusOffset = versionOffset + getNextFieldOffset(versionOffset);
   if (getTag(modulusOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the modulus");
-    return -1;
+    return CP_ERROR;
   }
 
   pubExpOffset = modulusOffset + getNextFieldOffset(modulusOffset);
   if (getTag(pubExpOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the public exponent");
-    return -1;
+    return CP_ERROR;
   }
 
   privExpOffset = pubExpOffset + getNextFieldOffset(pubExpOffset);
   if (getTag(privExpOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the private exponent");
-    return -1;
+    return CP_ERROR;
   }
 
   pOffset = privExpOffset + getNextFieldOffset(privExpOffset);
   if (getTag(pOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the the first prime p");
-    return -1;
+    return CP_ERROR;
   }
 
   qOffset = pOffset + getNextFieldOffset(pOffset);
   if (getTag(qOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the second prime q");
-    return -1;
+    return CP_ERROR;
   }
 
   d_mod_p1_Offset = qOffset + getNextFieldOffset(qOffset);
   if (getTag(d_mod_p1_Offset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the second prime q");
-    return -1;
+    return CP_ERROR;
   }
 
   d_mod_q1_Offset = d_mod_p1_Offset + getNextFieldOffset(d_mod_p1_Offset);
   if (getTag(d_mod_q1_Offset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the second prime q");
-    return -1;
+    return CP_ERROR;
   }
 
   inv_q_mod_p_Offset = d_mod_q1_Offset + getNextFieldOffset(d_mod_q1_Offset);
   if (getTag(inv_q_mod_p_Offset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the second prime q");
-    return -1;
+    return CP_ERROR;
   }
 
 
@@ -232,10 +232,10 @@ int parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
     printf("------- END -------\n");
   #endif
 
-  return 0;
+  return CP_SUCCESS;
 }
 
-int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat)
+CPErrorCode parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat)
 {
   CP_UINT8 * modulusOffset;
   CP_UINT8 * pubExpOffset;
@@ -256,7 +256,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(outerSequenceOffset) != ASN1_SEQUENCE_TAG)
     {
       LOG_ERROR("Failed to parse the sequence");
-      return -1;
+      return CP_ERROR;
     }
 
     innerSequenceOffset = outerSequenceOffset + getStructuredFieldDataOffset(outerSequenceOffset);
@@ -264,7 +264,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(innerSequenceOffset) != ASN1_SEQUENCE_TAG)
     {
       LOG_ERROR("Failed to parse the sequence");
-      return -1;
+      return CP_ERROR;
     }
 
     oidOffset = innerSequenceOffset + getStructuredFieldDataOffset(innerSequenceOffset);
@@ -272,7 +272,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(oidOffset) != ASN1_OID_TAG)
     {
       LOG_ERROR("Failed to parse the oid");
-      return -1;
+      return CP_ERROR;
     }
 
     CP_UINT8 * oidDataOffset = oidOffset + 2;
@@ -283,7 +283,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
       if (oidDataOffset[count] != RSA_PUBLIC_KEY_OID[count])
       {
         LOG_ERROR("The Object Identifier doesn't correspond to public key");
-        return -1;
+        return CP_ERROR;
       }
     }
 
@@ -292,7 +292,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(nullOffset) != ASN1_NULL_TAG)
     {
       LOG_ERROR("Failed to parse the null field");
-      return -1;
+      return CP_ERROR;
     }
 
     bitStringOffset = innerSequenceOffset + getNextFieldOffset(innerSequenceOffset);
@@ -300,7 +300,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(bitStringOffset) != ASN1_BIT_STRING_TAG)
     {
       LOG_ERROR("Failed to parse the bit string");
-      return -1;
+      return CP_ERROR;
     }
 
     bitStringSequenceOffset = bitStringOffset + getStructuredFieldDataOffset(bitStringOffset) + 1;// +1 -> ignore the first byte of the data
@@ -308,7 +308,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(bitStringSequenceOffset) != ASN1_SEQUENCE_TAG)
     {
       LOG_ERROR("Failed to parse the sequence");
-      return -1;
+      return CP_ERROR;
     }
 
     modulusOffset = bitStringSequenceOffset + getStructuredFieldDataOffset(bitStringSequenceOffset);
@@ -321,7 +321,7 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
     if(getTag(sequenceOffset) != ASN1_SEQUENCE_TAG)
     {
       LOG_ERROR("Failed to parse the sequence");
-      return -1;
+      return CP_ERROR;
     }
     LOG_INFO("Parsed the sequence");
 
@@ -330,21 +330,21 @@ int parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat k
   else
   {
     LOG_ERROR("Key format unkown");
-    return -1;
+    return CP_ERROR;
   }
 
 
   if (getTag(modulusOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the modulus");
-    return -1;
+    return CP_ERROR;
   }
 
   pubExpOffset = modulusOffset + getNextFieldOffset(modulusOffset);
   if (getTag(pubExpOffset) != ASN1_INTEGER_TAG)
   {
     LOG_ERROR("Failed to parse the public exponent");
-    return -1;
+    return CP_ERROR;
   }
 
   #if (DBGMSG == 1)

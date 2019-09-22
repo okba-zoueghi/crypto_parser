@@ -79,11 +79,11 @@ typedef struct
 }DsaPublicKey;
 */
 
-int parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam);
+CPErrorCode parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam);
 
 /* TO DO
-int parseDsaPrivateKey(CP_UINT8 * dsaPrivateKeyDerInput, DsaPrivateKey * dsaPrivateKey);
-int parseDsaPublicKey(CP_UINT8 * dsaPublicKeyDerInput, DsaPublicKey * dsaPublicKey);
+CPErrorCode parseDsaPrivateKey(CP_UINT8 * dsaPrivateKeyDerInput, DsaPrivateKey * dsaPrivateKey);
+CPErrorCode parseDsaPublicKey(CP_UINT8 * dsaPublicKeyDerInput, DsaPublicKey * dsaPublicKey);
 */
 
 #endif
