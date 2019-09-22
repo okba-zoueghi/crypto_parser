@@ -55,7 +55,7 @@ cmake -D CMD_LINE_TOOL=NO ..
 
 **WARNING** : The command line tool uses the C standard Library. Make sure that you have the C standard library if the command line tool is not disabled. 
 
-**INFO** : If the command line tool is disabled, The C standard library is not needed as the library in idependent of external and third party librarie.
+**INFO** : If the command line tool is disabled, The C standard library is not needed as the library is idependent of external and third party libraries.
 
 # Use The Crypto Parser Command Line Tool
 
