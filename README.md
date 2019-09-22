@@ -12,9 +12,9 @@ That's why I decided to implement a tiny crypto parser which uses only the stack
 on any external library (not even the C standard library!), written in native C and which is
 suitable for deeply embedded environments.
 
-# Supported crypto objects
+# Supported Crypto Objects
 
-- x509 certificates in DER format
+- X.509 certificates in DER format
 - RSA PKCS1 in DER format
 - RSA PKCS8 unencrypted in DER format
 - DH parameters in DER format
@@ -28,7 +28,7 @@ Create a folder for the build
 mkdir build
 ```
 
-Generate the Makefile file with cmake
+Generate a Makefile file with cmake
 
 ```shell
 cd build
@@ -48,5 +48,5 @@ usage:
 crypto_parser -o <x509Cert|rsaPubKey|rsaPrivKey|dhParam|dsaParam> -f <file.der>
 -o   specify the crypto object type, it could be one of the following values
      x509Cert|rsaPubKey|rsaPrivKey|dhParam|dsaParam
--f   specify the file to parse in DER format\n
+-f   specify the file to parse in DER format
 ```
