@@ -35,11 +35,27 @@ cd build
 cmake ..
 ```
 
-Build the library and the samples
+Build the library and the command line tool
 
 ```shell
 make
 ```
+
+To cross compile, the cross compiler may be set with the following cmake option:
+
+```shell
+cmake -D C_CROSS_COMPILER=<path/to/cross/compiler> ..
+```
+
+To disable building the command line tool use the following cmake option:
+
+```shell
+cmake -D CMD_LINE_TOOL=NO ..
+```
+
+**WARNING** : The command line tool uses the C standard Library. Make sure that you have the C standard library if the command line tool is not disabled. 
+
+**INFO** : If the command line tool is disabled, The C standard library is not needed as the library in idependent of external and third party librarie.
 
 # Use The Crypto Parser Command Line Tool
 
