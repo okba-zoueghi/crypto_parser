@@ -94,4 +94,10 @@
   #define LOG_ERROR(m)
 #endif /* end DBGMSG */
 
+typedef enum
+{
+  CP_SUCCESS = 0,
+  CP_ERROR
+}CPErrorCode;
+
 #endif /* end CP_CONFIG_H_ */
