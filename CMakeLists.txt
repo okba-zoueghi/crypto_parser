@@ -27,4 +27,8 @@ add_library(staticlib STATIC ${SOURCES})
 set_target_properties(sharedlib PROPERTIES OUTPUT_NAME cryptoparser)
 set_target_properties(staticlib PROPERTIES OUTPUT_NAME cryptoparser)
 
-add_subdirectory(samples)
+# Check if the command line tool is disabled
+
+if(NOT ("NO" STREQUAL "${CMD_LINE_TOOL}") )
+  add_subdirectory(samples)
+endif()
