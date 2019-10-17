@@ -14,11 +14,39 @@ suitable for deeply embedded environments.
 
 # Supported Crypto Objects
 
-- X.509 certificates in DER format
-- RSA PKCS1 in DER format
-- RSA PKCS8 unencrypted in DER format
-- DH parameters in DER format
-- DSA parameters in DER format
+- X.509 certificates
+- RSA PKCS1
+- RSA PKCS8 unencrypted
+- DH parameters
+- DSA parameters
+
+**INFO** : The crypto objects **MUST** be in **DER** format.
+
+If your crypto object is in PEM format you could use OpenSSL to convert from PEM to DER like shown below.
+
+Convert X.509 certificate from PEM to DER:
+
+```shell
+openssl x509 -inform PEM -outform DER -in certificate.pem -out certificate.der
+```
+
+Convert RSA key pair from PEM to DER:
+
+```shell
+openssl rsa -inform PEM -outform DER -in key.pem -out key.der
+```
+
+Convert Diffie Hellman parameters from PEM to DER:
+
+```shell
+openssl dhparam -inform PEM -outform DER -in dhparam.pem -out dhparam.der
+```
+
+Convert DSA parameters from PEM to DER:
+
+```shell
+openssl dsaparam -inform PEM -outform DER -in dsaparam.pem -out dsaparam.der
+```
 
 # Build
 
@@ -53,7 +81,7 @@ To disable building the command line tool use the following cmake option:
 cmake -D CMD_LINE_TOOL=NO ..
 ```
 
-**WARNING** : The command line tool uses the C standard Library. Make sure that you have the C standard library if the command line tool is not disabled. 
+**WARNING** : The command line tool uses the C standard Library. Make sure that you have the C standard library if the command line tool is not disabled.
 
 **INFO** : If the command line tool is disabled, The C standard library is not needed as the library is idependent of external and third party libraries.
 
@@ -79,7 +107,7 @@ Certificate:
 		 ECDSA_SHA2
 	 Issuer:
 		 Country (C) : US
-		 State or Province (ST) : 
+		 State or Province (ST) :
 		 Organization (O) : VeriSign, Inc.
 		 Common Name (CN) : VeriSign Class 3 Public Primary Certification Authority - G4
 	 Validity:
@@ -87,7 +115,7 @@ Certificate:
 		 Not Valid After : 2038/01/18
 	 Subject:
 		 Country (C) : US
-		 State or Province (ST) : 
+		 State or Province (ST) :
 		 Organization (O) : VeriSign, Inc.
 		 Common Name (CN) : VeriSign Class 3 Public Primary Certification Authority - G4
 	 Public Key Algorithm: ECDSA
