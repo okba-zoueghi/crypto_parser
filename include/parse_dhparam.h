@@ -49,6 +49,14 @@ typedef struct
 	CP_UINT16 dhGeneratorSize;
 }DhParam;
 
+/**
+ * @brief Parse Diffie Hellman parameters
+ *
+ * @param[in] dhParamDerInput Diffie Hellman parameters encoded in DER format
+ * @param[in,out] dhParam pointer to DhParam that will hold the parsed parameters
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 CPErrorCode parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam);
 
 #ifdef __cplusplus

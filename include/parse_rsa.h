@@ -84,8 +84,25 @@ typedef struct
   CP_UINT16 keyBitSize;
 }RsaPublicKey;
 
+/**
+ * @brief Parse RSA private key
+ *
+ * @param[in] keyDerInput RSA private key encoded in DER format.
+ * @param[in,out] rsaKey pointer to RsaPrivateKey that will hold the parsed key.
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 CPErrorCode parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey);
 
+/**
+ * @brief Parse RSA public key
+ *
+ * @param[in] keyDerInput RSA public key encoded in DER format
+ * @param[in,out] rsaKey pointer to RsaPublicKey that will hold the parsed key
+ * @param[in] keyFormat could be PKCS_1 or PKCS_8_UNENCRYPTED
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 CPErrorCode parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat);
 
 #ifdef __cplusplus

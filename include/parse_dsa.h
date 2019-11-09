@@ -83,6 +83,14 @@ typedef struct
 }DsaPublicKey;
 */
 
+/**
+ * @brief Parse DSA parameters
+ *
+ * @param[in] dsaParamDerInput DSA parameters encoded in DER format
+ * @param[in,out] dsaParam pointer to DsaParam that will hold the parsed parameters
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 CPErrorCode parseDsaParam(CP_UINT8 * dsaParamDerInput, DsaParam * dsaParam);
 
 /* TO DO

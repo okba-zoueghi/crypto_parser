@@ -65,25 +65,92 @@ extern "C" {
 #define IGNORE_ZERO_LEADING_BYTES 1
 #define INCLUDE_ZERO_LEADING_BYTES 0
 
-//Same as memcpy provided by the C standard library
+
+/**
+ * @brief Same behaviour as memcpy provided by the C standard library
+ *
+ * @param[in,out] dest destination buffer
+ * @param[in] src source buffer
+ * @param[in] len length of the source buffer
+ */
 void CP_memcpy(CP_UINT8 * dest, const CP_UINT8 * src, CP_UINT32 len);
 
-// this function is only for internal usage
+
+/**
+ * @brief Takes a buffer and returns the offset the first non-zero byte
+ *
+ * @param[in] input input buffer
+ * @param[in] bufferSize input buffer size
+ *
+ * @return the offset the first non-zero byte
+ */
 static CP_UINT32 getFirstNonZeroByteOffset(CP_UINT8 * input, CP_UINT32 bufferSize);
 
+/**
+ * @brief Indicates whether a field is structured or not
+ *
+ * @param[in] input pointer to ASN.1 DER encoded field
+ *
+ * @return 0 if the field is not structured and > 0 if field is structured
+ */
 CP_UINT32 isFieldStructured(CP_UINT8 * input);
 
+/**
+ * @brief Indicates the start offset of data of a structured field
+ *
+ * @param[in] input pointer to structured ASN.1 DER encoded field
+ *
+ * @return start offset of data
+ */
 CP_UINT32 getStructuredFieldDataOffset(CP_UINT8 * input);
 
+/**
+ * @brief Indicates the Tag of a field
+ *
+ * @param[in] input pointer to ASN.1 DER encoded field
+ *
+ * @return Tag
+ */
 CP_UINT32 getTag(CP_UINT8 * input);
 
+/**
+ * @brief Indicates the class of a field
+ *
+ * @param[in] input pointer to ASN.1 DER encoded field
+ *
+ * @return Class
+ */
 CP_UINT8 getClass(CP_UINT8 * input);
 
-//this function is only for internal usage
+/**
+ * @brief Get the data size when the length is extented
+ *
+ * @param[in] input pointer to the length of the field
+ * @param[in] sizeFieldLength size of the length
+ *
+ * @return data size
+ */
 static CP_UINT32 getExtendedSizeField(CP_UINT8 * input, CP_UINT32 sizeFieldLength);
 
+/**
+ * @brief Allows to get the next field offset of a field
+ *
+ * @param[in] input pointer to ASN.1 DER encoded field
+ *
+ * @return offset of the next field
+ */
 CP_UINT32 getNextFieldOffset(CP_UINT8 * input);
 
+/**
+ * @brief Allows to get the next field offset of a field
+ *
+ * @param[in,out] buffer destination buffer to hold the value of the ASN.1 DER encoded field
+ * @param[in] bufferSize size of the destination buffer
+ * @param[in] input pointer to an ASN.1 DER encoded field
+ * @param[in] ignoreZeroLeadingBytes could be INCLUDE_ZERO_LEADING_BYTES or IGNORE_ZERO_LEADING_BYTES
+ *
+ * @return size of read bytes
+ */
 CP_UINT32 getField(CP_UINT8 * buffer, CP_UINT32 bufferSize, CP_UINT8 * input, CP_UINT8 ignoreZeroLeadingBytes);
 
 #ifdef __cplusplus

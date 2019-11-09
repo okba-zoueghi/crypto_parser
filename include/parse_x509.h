@@ -253,14 +253,54 @@ typedef struct
 
 }X509Cert;
 
+/**
+ * @brief Parse the TBSCertificate (To Be Signed Certificate) part of the Certificate
+ *
+ * @param[in] x509TbsCertDerOffset the start offset of the TBSCertificate
+ * @param[in,out] tbsCertificate pointer to TbsCertificate that will hold the parsed tbsCertificate
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate);
 
+/**
+ * @brief Parse the Signature Algorithm part of the Certificate
+ *
+ * @param[in] x509CertSigAlgDerOffset the start offset of the Signature Algorithm
+ * @param[in,out] signatureAlgorithm pointer to SignatureAlgorithm that will hold the parsed Signature Algorithm
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 static CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm);
 
+/**
+ * @brief Parse the Signature Value part of the Certificate
+ *
+ * @param[in] x509CertSigValDerOffset the start offset of the Signature Value
+ * @param[in,out] signatureValue pointer to SignatureValue that will hold the parsed Signature Value
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue);
 
+/**
+ * @brief Parse the Name Attributes, could be used for both subject and issuer
+ *
+ * @param[in] x509NameAttributesOffset the start offset of the Name attributes
+ * @param[in,out] nameAttributes pointer to NameAttributes that will hold the parsed Name Attributes
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 static CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
 
+/**
+ * @brief Parse X.509 Certificate
+ *
+ * @param[in] x509CertDerInput X.509 Certificate encoded in DER format
+ * @param[in,out] x509Cert pointer to X509Cert that will hold the parsed X.509 Certificate
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
 CPErrorCode parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert);
 
 #ifdef __cplusplus
