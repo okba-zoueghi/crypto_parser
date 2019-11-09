@@ -23,7 +23,7 @@
 #include "parse_der.h"
 #include "parse_x509.h"
 
-CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
+static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
   CP_UINT8 * sequenceOffset = x509TbsCertDerOffset;
   CP_SINT8 * firstElementOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
@@ -343,7 +343,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   return CP_SUCCESS;
 }
 
-CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
+static CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
 {
   CP_UINT8 * sequenceOffset = x509CertSigAlgDerOffset;
   CP_UINT8 * algorithmOidOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
@@ -469,7 +469,7 @@ CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, Sign
   return CP_SUCCESS;
 }
 
-CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
+static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
 {
   if(getTag(x509CertSigValDerOffset) != ASN1_BIT_STRING_TAG)
   {
@@ -501,7 +501,7 @@ CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, Signatur
   return CP_SUCCESS;
 }
 
-CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
+static CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
 {
   CP_UINT8 * endOfNameAttributesOffset = x509NameAttributesOffset + getNextFieldOffset(x509NameAttributesOffset);
   CP_UINT8 * attributeSetOffset = x509NameAttributesOffset + getStructuredFieldDataOffset(x509NameAttributesOffset);
