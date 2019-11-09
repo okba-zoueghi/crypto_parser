@@ -25,6 +25,10 @@
 
 #include "cp_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DSA_PARAM_BIT_SIZE 3072
 
 #define DSA_PARAM_BYTE_SIZE (DSA_PARAM_BIT_SIZE / 8)
@@ -86,4 +90,8 @@ CPErrorCode parseDsaPrivateKey(CP_UINT8 * dsaPrivateKeyDerInput, DsaPrivateKey *
 CPErrorCode parseDsaPublicKey(CP_UINT8 * dsaPublicKeyDerInput, DsaPublicKey * dsaPublicKey);
 */
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* CP_PARSE_DSA_H_ */

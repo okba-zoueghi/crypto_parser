@@ -25,6 +25,10 @@
 
 #include "cp_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* x509 */
 #define SIGNATURE_ALGORITHM_OID_SIZE 20
 #define PUBLIC_KEY_OID_SIZE 20
@@ -258,5 +262,9 @@ static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, S
 static CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
 
 CPErrorCode parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

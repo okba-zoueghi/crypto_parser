@@ -26,7 +26,7 @@
 static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
   CP_UINT8 * sequenceOffset = x509TbsCertDerOffset;
-  CP_SINT8 * firstElementOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
+  CP_UINT8 * firstElementOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
   CP_UINT8 * versionOffset;
   CP_UINT8 * certificateSerialNumberOffset;
   CP_UINT8 * signatureAlgorithmOffset;
@@ -40,13 +40,13 @@ static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsC
   CP_UINT8 * publicAlgorithmIdentifierOffset;
   CP_UINT8 * publicKeyOffset;
 
-  CP_UINT8 class;
-  class = getClass(firstElementOffset);
+  CP_UINT8 DerClass;
+  DerClass = getClass(firstElementOffset);
 
   CP_UINT8 isFirstElementVersion;
 
   /* If the class of the first element is context specific, the the first element is the version */
-  if (class == CONTEXT_SPECEFIC_CLASS)
+  if (DerClass == CONTEXT_SPECEFIC_CLASS)
   {
     CP_UINT8 * explicitWrapper = firstElementOffset;
 

@@ -25,6 +25,10 @@
 
 #include "cp_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define RSA_MAX_KEY_BIT_SIZE 4096
 #define MODULUS_BYTE_SIZE (RSA_MAX_KEY_BIT_SIZE / 8)
 #define PRIVATE_EXPONENT_BYTE_SIZE (RSA_MAX_KEY_BIT_SIZE / 8)
@@ -84,4 +88,8 @@ CPErrorCode parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey);
 
 CPErrorCode parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, KeyFormat keyFormat);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* CP_PARSE_RSA_H_ */

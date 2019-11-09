@@ -24,6 +24,10 @@
 
 #include "cp_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Masks */
 #define CLASS_MASK 0xC0
 #define STRUCTURED_FIELD_MASK 0x20
@@ -82,4 +86,8 @@ CP_UINT32 getNextFieldOffset(CP_UINT8 * input);
 
 CP_UINT32 getField(CP_UINT8 * buffer, CP_UINT32 bufferSize, CP_UINT8 * input, CP_UINT8 ignoreZeroLeadingBytes);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* CP_PARSE_DER_H_ */

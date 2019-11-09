@@ -25,6 +25,10 @@
 
 #include "cp_config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DH_PARAM_BIT_SIZE 1024
 
 #define DH_PARAM_BYTE_SIZE (DH_PARAM_BIT_SIZE / 8)
@@ -47,4 +51,8 @@ typedef struct
 
 CPErrorCode parseDhParam(CP_UINT8 * dhParamDerInput, DhParam * dhParam);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* CP_PARSE_DHPARAM_H_ */
