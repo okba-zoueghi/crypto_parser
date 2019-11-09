@@ -115,10 +115,20 @@ static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsC
   #endif
 
   signatureAlgorithmOffset = certificateSerialNumberOffset + getNextFieldOffset(certificateSerialNumberOffset);
-  parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(tbsCertificate->signatureAlgorithm));
+
+  if (parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(tbsCertificate->signatureAlgorithm)) != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the Signature Algorithm");
+    return CP_ERROR;
+  }
 
   issuerOffset = signatureAlgorithmOffset + getNextFieldOffset(signatureAlgorithmOffset);
-  parseX509NameAttributes(issuerOffset, &(tbsCertificate->issuer));
+
+  if (parseX509NameAttributes(issuerOffset, &(tbsCertificate->issuer)) != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the Signature Algorithm");
+    return CP_ERROR;
+  }
 
   validityOffset = issuerOffset + getNextFieldOffset(issuerOffset);
 
@@ -223,7 +233,11 @@ static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsC
 
   /* TODO Parse subject */
   subjectOffset = validityOffset + getNextFieldOffset(validityOffset);
-  parseX509NameAttributes(subjectOffset, &(tbsCertificate->subject));
+  if (parseX509NameAttributes(subjectOffset, &(tbsCertificate->subject)) != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the Signature Algorithm");
+    return CP_ERROR;
+  }
 
   publicKeyInfoOffset = subjectOffset + getNextFieldOffset(subjectOffset);
 
@@ -635,6 +649,7 @@ static CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, 
 
 CPErrorCode parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
 {
+  CPErrorCode ret = CP_SUCCESS;
 
   CP_UINT8 * sequenceOffset;
 
@@ -658,15 +673,39 @@ CPErrorCode parseX509Cert(CP_UINT8 * x509CertDerInput, X509Cert * x509Cert)
 
   /* Parse tbsCertificate */
   tbsCertificateOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
-  parseX509TbsCertificate(tbsCertificateOffset, &(x509Cert->tbsCertificate));
+  ret = parseX509TbsCertificate(tbsCertificateOffset, &(x509Cert->tbsCertificate));
+
+  if (ret != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the TbsCertificate");
+    return ret;
+  }
+
+  LOG_INFO("Parsed the TbsCertificate");
 
   /* Parse the signature algorithm */
   signatureAlgorithmOffset = tbsCertificateOffset + getNextFieldOffset(tbsCertificateOffset);
-  parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(x509Cert->signatureAlgorithm));
+  ret = parseX509SignatureAlgorithm(signatureAlgorithmOffset, &(x509Cert->signatureAlgorithm));
+
+  if (ret != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the Signature Algorithm");
+    return ret;
+  }
+
+  LOG_INFO("Parsed the the Signature Algorithm");
 
   /* Parse the signature value */
   signatureValueOffset = signatureAlgorithmOffset + getNextFieldOffset(signatureAlgorithmOffset);
-  parseX509SignatureValue(signatureValueOffset, &(x509Cert->signatureValue));
+  ret = parseX509SignatureValue(signatureValueOffset, &(x509Cert->signatureValue));
 
-  return CP_SUCCESS;
+  if (ret != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the Signature Value");
+    return ret;
+  }
+
+  LOG_INFO("Parsed the the Signature Value");
+
+  return ret;
 }
