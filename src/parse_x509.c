@@ -28,7 +28,7 @@ const CP_UINT8 AINSI_X962_SIGNATURES_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0
 const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02};
 const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
 
-static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
+CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
   CP_UINT8 * sequenceOffset = x509TbsCertDerOffset;
   CP_UINT8 * firstElementOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
@@ -362,7 +362,7 @@ static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsC
   return CP_SUCCESS;
 }
 
-static CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
+CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
 {
   CP_UINT8 * sequenceOffset = x509CertSigAlgDerOffset;
   CP_UINT8 * algorithmOidOffset = sequenceOffset + getStructuredFieldDataOffset(sequenceOffset);
@@ -488,7 +488,7 @@ static CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffse
   return CP_SUCCESS;
 }
 
-static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
+CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue)
 {
   if(getTag(x509CertSigValDerOffset) != ASN1_BIT_STRING_TAG)
   {
@@ -520,7 +520,7 @@ static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, S
   return CP_SUCCESS;
 }
 
-static CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
+CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes)
 {
   CP_UINT8 * endOfNameAttributesOffset = x509NameAttributesOffset + getNextFieldOffset(x509NameAttributesOffset);
   CP_UINT8 * attributeSetOffset = x509NameAttributesOffset + getStructuredFieldDataOffset(x509NameAttributesOffset);

@@ -261,7 +261,7 @@ typedef struct
  *
  * @return CP_SUCCESS or CP_ERROR
  */
-static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate);
+CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate);
 
 /**
  * @brief Parse the Signature Algorithm part of the Certificate
@@ -271,7 +271,7 @@ static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsC
  *
  * @return CP_SUCCESS or CP_ERROR
  */
-static CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm);
+CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm);
 
 /**
  * @brief Parse the Signature Value part of the Certificate
@@ -281,7 +281,7 @@ static CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffse
  *
  * @return CP_SUCCESS or CP_ERROR
  */
-static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue);
+CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, SignatureValue * signatureValue);
 
 /**
  * @brief Parse the Name Attributes, could be used for both subject and issuer
@@ -291,7 +291,7 @@ static CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, S
  *
  * @return CP_SUCCESS or CP_ERROR
  */
-static CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
+CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
 
 /**
  * @brief Parse X.509 Certificate
