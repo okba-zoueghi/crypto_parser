@@ -75,17 +75,6 @@ extern "C" {
  */
 void CP_memcpy(CP_UINT8 * dest, const CP_UINT8 * src, CP_UINT32 len);
 
-
-/**
- * @brief Takes a buffer and returns the offset the first non-zero byte
- *
- * @param[in] input input buffer
- * @param[in] bufferSize input buffer size
- *
- * @return the offset the first non-zero byte
- */
-static CP_UINT32 getFirstNonZeroByteOffset(CP_UINT8 * input, CP_UINT32 bufferSize);
-
 /**
  * @brief Indicates whether a field is structured or not
  *
@@ -121,16 +110,6 @@ CP_UINT32 getTag(CP_UINT8 * input);
  * @return Class
  */
 CP_UINT8 getClass(CP_UINT8 * input);
-
-/**
- * @brief Get the data size when the length is extented
- *
- * @param[in] input pointer to the length of the field
- * @param[in] sizeFieldLength size of the length
- *
- * @return data size
- */
-static CP_UINT32 getExtendedSizeField(CP_UINT8 * input, CP_UINT32 sizeFieldLength);
 
 /**
  * @brief Allows to get the next field offset of a field
