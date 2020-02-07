@@ -48,8 +48,6 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   CP_UINT8 DerClass;
   DerClass = getClass(firstElementOffset);
 
-  CP_UINT8 isFirstElementVersion;
-
   /* If the class of the first element is context specific, the the first element is the version */
   if (DerClass == CONTEXT_SPECEFIC_CLASS)
   {
