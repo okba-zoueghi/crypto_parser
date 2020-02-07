@@ -43,7 +43,7 @@ extern "C" {
 
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
-static const CP_UINT8 RSA_PKCS1_OID[] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01};
+extern const CP_UINT8 RSA_PKCS1_OID[RSA_PKCS1_OID_SIZE];
 
 /* RSA Signature Algorithms Object Identifiers (OIDs) */
 #define RSA_SSA_PKCS_V_1_5_MD2_OID 0x02
@@ -59,8 +59,8 @@ static const CP_UINT8 RSA_PKCS1_OID[] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x0
 
 /* ANSI X9.62 OID (Needed for ECDSA)*/
 #define AINSI_X962_OID_SIZE 5
-static const CP_UINT8 AINSI_X962_SIGNATURES_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04};
-static const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02};
+extern const CP_UINT8 AINSI_X962_SIGNATURES_OID[AINSI_X962_OID_SIZE+1];
+extern const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1];
 
 /* ECDSA Signature Algorithms Object Identifiers (OIDs) */
 #define ECDSA_SHA1_OID 0x01
@@ -72,7 +72,7 @@ static const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[] = {0x2A, 0x86, 0x48, 0xCE, 0x3
 
 /* Attribute Type OID (needed for identifying the subject's and the ussuer's attributes) */
 #define ATTRIBUTE_TYPE_OID_SIZE 2
-static const CP_UINT8 ATTRIBUTE_TYPE_OID[] = {0x55, 0x04};
+extern const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE];
 
 /* Attributes' types OIDs */
 #define ATTRIBUTE_TYPE_NAME_OID 0x29

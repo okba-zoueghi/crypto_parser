@@ -23,6 +23,11 @@
 #include "parse_der.h"
 #include "parse_x509.h"
 
+const CP_UINT8 RSA_PKCS1_OID[RSA_PKCS1_OID_SIZE] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01};
+const CP_UINT8 AINSI_X962_SIGNATURES_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04};
+const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02};
+const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
+
 static CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
   CP_UINT8 * sequenceOffset = x509TbsCertDerOffset;

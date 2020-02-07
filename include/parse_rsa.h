@@ -36,7 +36,7 @@ extern "C" {
 #define PRIME_SIZE (PRIVATE_EXPONENT_BYTE_SIZE / 2)
 
 #define RSA_PUBLIC_KEY_OID_SIZE 9
-static const CP_UINT8 RSA_PUBLIC_KEY_OID[] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01};
+extern const CP_UINT8 RSA_PUBLIC_KEY_OID[RSA_PUBLIC_KEY_OID_SIZE];
 
 typedef enum {PKCS_1, PKCS_8_UNENCRYPTED} KeyFormat;
 

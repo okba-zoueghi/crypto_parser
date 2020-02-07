@@ -23,6 +23,8 @@
 #include "parse_der.h"
 #include "parse_rsa.h"
 
+const CP_UINT8 RSA_PUBLIC_KEY_OID[RSA_PUBLIC_KEY_OID_SIZE] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01};
+
 CPErrorCode parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
 {
   CP_UINT8 * sequenceOffset;
