@@ -105,7 +105,15 @@ int main(int argc, char **argv)
   int fd = open (fileName, O_RDONLY);
   int fileSize;
   struct stat fileStat;
+
   int status = fstat (fd, &fileStat);
+
+  if (status != 0)
+  {
+    printf("Faild to get the file size\n");
+    return CP_ERROR;
+  }
+
   fileSize = fileStat.st_size;
 
   if(fd < 0)
@@ -239,6 +247,9 @@ void printX509(X509Cert * x509Cert)
     case ECDSA_SHA2 :
       printf("ECDSA_SHA2\n");
       break;
+    default:
+      printf("Unknown\n");
+      break;
   }
 
   printf("\t Issuer:\n");
@@ -357,6 +368,9 @@ void printX509(X509Cert * x509Cert)
       break;
     case PUBLIC_KEY_INFO_ECDSA:
       printf("ECDSA\n");
+      break;
+    default:
+      printf("Unknown\n");
       break;
   }
   printf("\t\t ");
