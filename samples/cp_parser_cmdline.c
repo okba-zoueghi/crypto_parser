@@ -136,8 +136,16 @@ int main(int argc, char **argv)
     case X509CERT_OBJ:
     {
       X509Cert x509Cert;
-      parseX509Cert(objectData, &x509Cert);
-      printX509(&x509Cert);
+
+      if (parseX509Cert(objectData, &x509Cert) != CP_ERROR)
+      {
+        printX509(&x509Cert);
+      }
+      else
+      {
+        printf("parseX509Cert Failed\n");
+      }
+
       break;
     }
 
