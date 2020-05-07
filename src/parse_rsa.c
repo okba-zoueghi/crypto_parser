@@ -149,13 +149,13 @@ CPErrorCode parseRsaPrivateKey(CP_UINT8 * keyDerInput, RsaPrivateKey * rsaKey)
   #endif
 
 
-  rsaPubExpByteSize = getField((CP_UINT8 *) &(rsaKey->pubExp), PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
+  rsaPubExpByteSize = getField(rsaKey->pubExp, PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
 
   #if (DBGMSG == 1)
-    LOG_INFO("Parsed the public exponent :");
+    LOG_INFO("Parsed the public exponent hhhh :");
     printf("------- BEGIN PUBLIC EXPONENT (e) -------\n");
     for (i = 0; i < rsaPubExpByteSize; i++) {
-      printf("%02x, ", ((CP_UINT8 *) &(rsaKey->pubExp))[i]);
+      printf("%02x, ", rsaKey->pubExp[i]);
     }
     printf("\n");
     printf("------- END PUBLIC EXPONENT -------\n");
@@ -367,13 +367,13 @@ CPErrorCode parseRsaPublicKey(CP_UINT8 * keyDerInput, RsaPublicKey * rsaKey, Key
   #endif
 
 
-  rsaPubExpByteSize = getField((CP_UINT8 *) &(rsaKey->pubExp), PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
+  rsaPubExpByteSize = getField(rsaKey->pubExp, PUBLIC_EXPONENT_BYTE_SIZE, pubExpOffset, IGNORE_ZERO_LEADING_BYTES);
 
   #if (DBGMSG == 1)
     LOG_INFO("Parsed the public exponent :");
     printf("------- BEGIN PUBLIC EXPONENT (e) -------\n");
     for (i = 0; i < rsaPubExpByteSize; i++) {
-      printf("%02x, ", ((CP_UINT8 *) &(rsaKey->pubExp))[i]);
+      printf("%02x, ", rsaKey->pubExp[i]);
     }
     printf("\n");
     printf("------- END PUBLIC EXPONENT -------\n");
