@@ -89,9 +89,11 @@
   #include <stdio.h>
   #define LOG_INFO(m) printf("[INFO] %s \n", m)
   #define LOG_ERROR(m) printf("[ERROR] %s \n", m)
+  #define LOG_WARNING(m) printf("[WARNING] %s \n", m)
 #else
   #define LOG_INFO(m)
   #define LOG_ERROR(m)
+  #define LOG_WARNING(m)
 #endif /* end DBGMSG */
 
 typedef enum
