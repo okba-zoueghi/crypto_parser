@@ -255,6 +255,9 @@ void printX509(X509Cert * x509Cert)
     case ECDSA_SHA2 :
       printf("ECDSA_SHA2\n");
       break;
+    case ED25519 :
+      printf("ED25519\n");
+      break;
     default:
       printf("Unknown\n");
       break;
@@ -374,9 +377,19 @@ void printX509(X509Cert * x509Cert)
     case PUBLIC_KEY_INFO_RSA:
       printf("RSA\n");
       break;
+
     case PUBLIC_KEY_INFO_ECDSA:
       printf("ECDSA\n");
       break;
+
+    case PUBLIC_KEY_INFO_ED25519:
+      printf("ED25519\n");
+      break;
+
+    case PUBLIC_KEY_INFO_ED448:
+      printf("ED448\n");
+      break;
+      
     default:
       printf("Unknown\n");
       break;

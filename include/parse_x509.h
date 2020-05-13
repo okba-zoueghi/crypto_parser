@@ -66,9 +66,19 @@ extern const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1];
 #define ECDSA_SHA1_OID 0x01
 #define ECDSA_SHA2_OID 0x03
 
+/* Thawte OID (Needed for EdDSA Algorithms (ED25519, ED448, etc) )*/
+#define THAWTE_OID_SIZE 2
+extern const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE];
+
+/* EdDSA Signature Algorithms Object Identifiers (OIDs) */
+#define ED25519_SIGNATURE_ALG_OID 0x70 /* Same OID for the public key and the signature*/
+#define ED448_SIGNATURE_ALG_OID 0x71 /* Same OID for the public key and the signature*/
+
 /* Public Keys OIDs */
 #define RSA_PUB_KEY_OID 0x01
 #define ECDSA_PUB_KEY_OID 0x01
+#define ED25519_PUB_KEY_OID 0x70 /* Same OID for the public key and the signature*/
+#define ED448_PUB_KEY_OID 0x71 /* Same OID for the public key and the signature*/
 
 /* Attribute Type OID (needed for identifying the subject's and the ussuer's attributes) */
 #define ATTRIBUTE_TYPE_OID_SIZE 2
@@ -163,6 +173,8 @@ typedef enum
   RSA_SSA_PSS,
   ECDSA_SHA1,
   ECDSA_SHA2,
+  ED25519,
+  ED448,
   UNRECOGNIZED_SIGNATURE_ALGORITHM
 }SignatureAlgorithmEnum;
 
@@ -170,6 +182,8 @@ typedef enum
 {
   PUBLIC_KEY_INFO_RSA,
   PUBLIC_KEY_INFO_ECDSA,
+  PUBLIC_KEY_INFO_ED25519,
+  PUBLIC_KEY_INFO_ED448,
   PUBLIC_KEY_INFO_UNRECOGNIZED
 }PublicKeyInfoEnum;
 

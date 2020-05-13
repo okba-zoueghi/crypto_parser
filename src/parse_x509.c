@@ -26,6 +26,7 @@
 const CP_UINT8 RSA_PKCS1_OID[RSA_PKCS1_OID_SIZE] = {0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01};
 const CP_UINT8 AINSI_X962_SIGNATURES_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04};
 const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02};
+const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE] = {0x2B, 0x65};
 const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
 
 CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
@@ -129,8 +130,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
 
   if (parseX509NameAttributes(issuerOffset, &(tbsCertificate->issuer)) != CP_SUCCESS)
   {
-    LOG_ERROR("Failed to parse the Signature Algorithm");
-    return CP_ERROR;
+    LOG_WARNING("Failed to parse the Name Attributes");
   }
 
   validityOffset = issuerOffset + getNextFieldOffset(issuerOffset);
@@ -238,8 +238,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   subjectOffset = validityOffset + getNextFieldOffset(validityOffset);
   if (parseX509NameAttributes(subjectOffset, &(tbsCertificate->subject)) != CP_SUCCESS)
   {
-    LOG_ERROR("Failed to parse the Signature Algorithm");
-    return CP_ERROR;
+    LOG_WARNING("Failed to parse the Name Attributes");
   }
 
   publicKeyInfoOffset = subjectOffset + getNextFieldOffset(subjectOffset);
@@ -271,6 +270,8 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
 
   CP_UINT8 rsaBased = 1;
   CP_UINT8 ecdsaBased = 1;
+  CP_UINT8 edDsaBased = 1;
+
   CP_UINT8 * oidDataOffset = publicAlgorithmIdentifierOffset + 2;
 
   CP_UINT8 count;
@@ -284,7 +285,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
     }
   }
 
-  /* loof if it is ECDSA based algorithm */
+  /* look if it is ECDSA based algorithm */
   if (!rsaBased)
   {
     for (count = 0; count < AINSI_X962_OID_SIZE; count++)
@@ -292,6 +293,18 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
       if (oidDataOffset[count] != AINSI_X962_PUBLICKEYS_OID[count])
       {
         ecdsaBased = 0;
+      }
+    }
+  }
+
+  /* look if it is EdDSA based algorithm */
+  if (!ecdsaBased)
+  {
+    for (count = 0; count < THAWTE_OID_SIZE; count++)
+    {
+      if (oidDataOffset[count] != THAWTE_OID[count])
+      {
+        edDsaBased = 0;
       }
     }
   }
@@ -318,6 +331,26 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
       case ECDSA_PUB_KEY_OID:
         LOG_INFO("Pulic Key Algorithm : ECDSA");
         tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_ECDSA;
+        break;
+
+      default:
+        LOG_ERROR("Unrecognized Algorithm");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_UNRECOGNIZED;
+        return CP_ERROR;
+    }
+  }
+  else if(edDsaBased)
+  {
+    switch (tbsCertificate->publicKeyInfo.algorithmOid[2])
+    {
+      case ED25519_PUB_KEY_OID:
+        LOG_INFO("Pulic Key Algorithm : ED25519");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_ED25519;
+        break;
+
+      case ED448_PUB_KEY_OID:
+        LOG_INFO("Pulic Key Algorithm : ED448");
+        tbsCertificate->publicKeyInfo.ePublicKeyInfo = PUBLIC_KEY_INFO_ED448;
         break;
 
       default:
@@ -376,27 +409,39 @@ CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, Sign
 
   CP_UINT8 rsaBased = 1;
   CP_UINT8 ecdsaBased = 1;
-  CP_UINT8 * oidDataOffset = algorithmOidOffset + 2;
+  CP_UINT8 edDsaBased = 1;
 
   CP_UINT8 count;
 
   /* look if it is RSA based algorithm */
   for (count = 0; count < RSA_PKCS1_OID_SIZE; count++)
   {
-    if (oidDataOffset[count] != RSA_PKCS1_OID[count])
+    if (signatureAlgorithm->algorithmOid[count] != RSA_PKCS1_OID[count])
     {
       rsaBased = 0;
     }
   }
 
-  /* loof if it is ECDSA based algorithm */
+  /* look if it is ECDSA based algorithm */
   if (!rsaBased)
   {
     for (count = 0; count < AINSI_X962_OID_SIZE; count++)
     {
-      if (oidDataOffset[count] != AINSI_X962_SIGNATURES_OID[count])
+      if (signatureAlgorithm->algorithmOid[count] != AINSI_X962_SIGNATURES_OID[count])
       {
         ecdsaBased = 0;
+      }
+    }
+  }
+
+  /* look if it is EdDSA based algorithm */
+  if (!ecdsaBased)
+  {
+    for (count = 0; count < THAWTE_OID_SIZE; count++)
+    {
+      if (signatureAlgorithm->algorithmOid[count] != THAWTE_OID[count])
+      {
+        edDsaBased = 0;
       }
     }
   }
@@ -466,6 +511,27 @@ CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, Sign
       case ECDSA_SHA2_OID:
         LOG_INFO("SignatureAlgorithm : ECDSA_SHA2");
         signatureAlgorithm->eSigAlg = ECDSA_SHA2;
+        break;
+
+      default:
+        LOG_ERROR("Unrecognized signature algorithm");
+        signatureAlgorithm->eSigAlg = UNRECOGNIZED_SIGNATURE_ALGORITHM;
+        return CP_ERROR;
+        break;
+    }
+  }
+  /* if EdDSA based, look which EdDSA algorithm is used */
+  else if (edDsaBased)
+  {
+    switch (signatureAlgorithm->algorithmOid[2])
+    {
+      case ED25519_SIGNATURE_ALG_OID:
+        LOG_INFO("SignatureAlgorithm : ED25519");
+        signatureAlgorithm->eSigAlg = ED25519;
+        break;
+      case ED448_SIGNATURE_ALG_OID:
+        LOG_INFO("SignatureAlgorithm : ED448");
+        signatureAlgorithm->eSigAlg = ED448;
         break;
 
       default:
@@ -555,7 +621,7 @@ CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAtt
     {
       if (oidDataOffset[count] != ATTRIBUTE_TYPE_OID[count])
       {
-        LOG_ERROR("Unrecognized attribute OID");
+        LOG_WARNING("Unrecognized attribute OID");
         return CP_ERROR;
       }
     }
