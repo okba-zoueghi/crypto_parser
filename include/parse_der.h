@@ -55,6 +55,7 @@ extern "C" {
 #define ASN1_UNIVERSAL_STRING_TAG 0x1C
 #define ASN1_UTF8_STRING_TAG 0x0C
 #define ASN1_BMP_STRING_TAG 0x1E
+#define ASN1_IA5_STRING_TAG 0x16
 
 /* Context Specefic Tags */
 #define ASN1_CONTEXT_SPECEFIC_X509_VERSION_TAG 0
