@@ -40,6 +40,7 @@ extern "C" {
 #define STATE_OR_PROVINCE_NAME_MAX_SIZE 128
 #define ORGANIZATION_NAME_MAX_SIZE 64
 #define COMMON_NAME_MAX_SIZE 64
+#define EMAIL_ADDRESS_MAX_SIZE 64
 
 /* PKCS #1 OID (Needed for RSA)*/
 #define RSA_PKCS1_OID_SIZE 8
@@ -84,6 +85,10 @@ extern const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE];
 #define ATTRIBUTE_TYPE_OID_SIZE 2
 extern const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE];
 
+/* PKCS9 OID needed for the email attribute*/
+#define PKCS_9_OID_SIZE 8
+extern const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE];
+
 /* Attributes' types OIDs */
 #define ATTRIBUTE_TYPE_NAME_OID 0x29
 #define ATTRIBUTE_TYPE_SUR_NAME_OID 0x04
@@ -100,6 +105,7 @@ extern const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE];
 #define ATTRIBUTE_TYPE_COUNTRY_NAME_OID 0x06
 #define ATTRIBUTE_TYPE_SERIAL_NUMBER_OID 0x05
 #define ATTRIBUTE_TYPE_PSEUDONYM_OID 0x41
+#define ATTRIBUTE_TYPE_EMAIL_ADDRESS_OID 0x01
 
 /* x509 Certificate ASN.1 structure from rfc5280
 
@@ -228,6 +234,8 @@ typedef struct
   CP_UINT8 organizationSize;
   CP_UINT8 commonName[COMMON_NAME_MAX_SIZE];
   CP_UINT8 commonNameSize;
+  CP_UINT8 emailAddress[EMAIL_ADDRESS_MAX_SIZE];
+  CP_UINT8 emailAddressSize;
 } NameAttributes;
 
 /* Public key */

@@ -288,6 +288,12 @@ void printX509(X509Cert * x509Cert)
     printf("%c",x509Cert->tbsCertificate.issuer.commonName[i]);
   }
   printf("\n");
+  printf("\t\t Email Address (EM) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.issuer.emailAddressSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.issuer.emailAddress[i]);
+  }
+  printf("\n");
 
   printf("\t Validity:\n");
   printf("\t\t Not Valid before : ");
@@ -370,6 +376,12 @@ void printX509(X509Cert * x509Cert)
     printf("%c",x509Cert->tbsCertificate.subject.commonName[i]);
   }
   printf("\n");
+  printf("\t\t Email Address (EM) : ");
+  for (i = 0; i < x509Cert->tbsCertificate.subject.emailAddressSize; i++)
+  {
+    printf("%c",x509Cert->tbsCertificate.subject.emailAddress[i]);
+  }
+  printf("\n");
 
   printf("\t Public Key Algorithm: ");
   switch (x509Cert->tbsCertificate.publicKeyInfo.ePublicKeyInfo)
@@ -389,7 +401,7 @@ void printX509(X509Cert * x509Cert)
     case PUBLIC_KEY_INFO_ED448:
       printf("ED448\n");
       break;
-      
+
     default:
       printf("Unknown\n");
       break;

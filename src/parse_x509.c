@@ -28,6 +28,7 @@ const CP_UINT8 AINSI_X962_SIGNATURES_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0
 const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02};
 const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE] = {0x2B, 0x65};
 const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
+const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE] = {0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09};
 
 CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
@@ -589,6 +590,11 @@ CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAtt
   CP_UINT8 * endOfNameAttributesOffset = x509NameAttributesOffset + getNextFieldOffset(x509NameAttributesOffset);
   CP_UINT8 * attributeSetOffset = x509NameAttributesOffset + getStructuredFieldDataOffset(x509NameAttributesOffset);
 
+  nameAttributes->stateSize = 0;
+  nameAttributes->organizationSize = 0;
+  nameAttributes->commonNameSize = 0;
+  nameAttributes->emailAddressSize = 0;
+
   do
   {
     if (getTag(attributeSetOffset) != ASN1_SET_TAG)
@@ -616,13 +622,25 @@ CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAtt
     CP_UINT8 * oidDataOffset = attributeOidOffset + 2;
 
     CP_UINT8 count;
+    CP_UINT8 x520NameAttribute = 1;
+    CP_UINT8 pkcs9Attribute = 1;
 
     for (count = 0; count < ATTRIBUTE_TYPE_OID_SIZE; count++)
     {
       if (oidDataOffset[count] != ATTRIBUTE_TYPE_OID[count])
       {
-        LOG_WARNING("Unrecognized attribute OID");
-        return CP_ERROR;
+        x520NameAttribute = 0;
+      }
+    }
+
+    if (!x520NameAttribute)
+    {
+      for (count = 0; count < PKCS_9_OID_SIZE; count++)
+      {
+        if (oidDataOffset[count] != PKCS_9_OID[count])
+        {
+          pkcs9Attribute = 0;
+        }
       }
     }
 
@@ -632,83 +650,111 @@ CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAtt
 
     CP_UINT8 * attributeDataOffset = attributeOidOffset + getNextFieldOffset(attributeOidOffset);
 
-    switch (oidDataOffset[2])
+    if (x520NameAttribute)
     {
-      case ATTRIBUTE_TYPE_COUNTRY_NAME_OID:
+      switch (oidDataOffset[2])
+      {
+        case ATTRIBUTE_TYPE_COUNTRY_NAME_OID:
 
-        if (getTag(attributeDataOffset) != ASN1_PRINTABLE_STRING_TAG)
-        {
-          LOG_ERROR("Failed to parse the country name");
-          return CP_ERROR;
-        }
-
-        getField(nameAttributes->country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
-
-        #if (DBGMSG == 1)
-          LOG_INFO("Parsed country name:");
-          printf("------- BEGIN country name -------\n");
-          for (i = 0; i < COUNTRY_NAME_SIZE; i++) {
-            printf("%C", nameAttributes->country[i]);
+          if (getTag(attributeDataOffset) != ASN1_PRINTABLE_STRING_TAG)
+          {
+            LOG_ERROR("Failed to parse the country name");
+            return CP_ERROR;
           }
-          printf("\n");
-          printf("------- END country name -------\n");
-        #endif
 
-        break;
+          getField(nameAttributes->country, COUNTRY_NAME_SIZE, attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
 
-      case ATTRIBUTE_TYPE_STATE_OR_PROVINCE_NAME_OID:
+          #if (DBGMSG == 1)
+            LOG_INFO("Parsed country name:");
+            printf("------- BEGIN country name -------\n");
+            for (i = 0; i < COUNTRY_NAME_SIZE; i++) {
+              printf("%C", nameAttributes->country[i]);
+            }
+            printf("\n");
+            printf("------- END country name -------\n");
+          #endif
 
-        nameAttributes->stateSize = getField(nameAttributes->state, STATE_OR_PROVINCE_NAME_MAX_SIZE,
-          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+          break;
 
-        #if (DBGMSG == 1)
-          LOG_INFO("Parsed state:");
-          printf("------- BEGIN state -------\n");
-          for (i = 0; i < nameAttributes->stateSize; i++) {
-            printf("%c", nameAttributes->state[i]);
+        case ATTRIBUTE_TYPE_STATE_OR_PROVINCE_NAME_OID:
+
+          nameAttributes->stateSize = getField(nameAttributes->state, STATE_OR_PROVINCE_NAME_MAX_SIZE,
+            attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+          #if (DBGMSG == 1)
+            LOG_INFO("Parsed state:");
+            printf("------- BEGIN state -------\n");
+            for (i = 0; i < nameAttributes->stateSize; i++) {
+              printf("%c", nameAttributes->state[i]);
+            }
+            printf("\n");
+            printf("------- END state -------\n");
+          #endif
+
+          break;
+
+        case ATTRIBUTE_TYPE_ORGANIZATION_NAME_OID:
+
+          nameAttributes->organizationSize = getField(nameAttributes->organization, ORGANIZATION_NAME_MAX_SIZE,
+            attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+          #if (DBGMSG == 1)
+            LOG_INFO("Parsed organization:");
+            printf("------- BEGIN organization -------\n");
+            for (i = 0; i < nameAttributes->organizationSize; i++) {
+              printf("%c", nameAttributes->organization[i]);
+            }
+            printf("\n");
+            printf("------- END organization -------\n");
+          #endif
+
+          break;
+
+        case ATTRIBUTE_TYPE_COMMON_NAME_OID:
+
+          nameAttributes->commonNameSize = getField(nameAttributes->commonName, COMMON_NAME_MAX_SIZE,
+            attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+          #if (DBGMSG == 1)
+            LOG_INFO("Parsed common name:");
+            printf("------- BEGIN common name -------\n");
+            for (i = 0; i < nameAttributes->commonNameSize; i++) {
+              printf("%c", nameAttributes->commonName[i]);
+            }
+            printf("\n");
+            printf("------- END common name -------\n");
+          #endif
+
+          break;
+
+        default:
+          break;
+      }
+    }
+    else if (pkcs9Attribute)
+    {
+      switch (oidDataOffset[8])
+      {
+        case ATTRIBUTE_TYPE_EMAIL_ADDRESS_OID:
+
+          if (getTag(attributeDataOffset) != ASN1_IA5_STRING_TAG)
+          {
+            LOG_ERROR("Failed to parse the email address");
+            return CP_ERROR;
           }
-          printf("\n");
-          printf("------- END state -------\n");
-        #endif
 
-        break;
+          nameAttributes->emailAddressSize = getField(nameAttributes->emailAddress, EMAIL_ADDRESS_MAX_SIZE,
+            attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
 
-      case ATTRIBUTE_TYPE_ORGANIZATION_NAME_OID:
+          break;
 
-        nameAttributes->organizationSize = getField(nameAttributes->organization, ORGANIZATION_NAME_MAX_SIZE,
-          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
-
-        #if (DBGMSG == 1)
-          LOG_INFO("Parsed organization:");
-          printf("------- BEGIN organization -------\n");
-          for (i = 0; i < nameAttributes->organizationSize; i++) {
-            printf("%c", nameAttributes->organization[i]);
-          }
-          printf("\n");
-          printf("------- END organization -------\n");
-        #endif
-
-        break;
-
-      case ATTRIBUTE_TYPE_COMMON_NAME_OID:
-
-        nameAttributes->commonNameSize = getField(nameAttributes->commonName, COMMON_NAME_MAX_SIZE,
-          attributeDataOffset, INCLUDE_ZERO_LEADING_BYTES);
-
-        #if (DBGMSG == 1)
-          LOG_INFO("Parsed common name:");
-          printf("------- BEGIN common name -------\n");
-          for (i = 0; i < nameAttributes->commonNameSize; i++) {
-            printf("%c", nameAttributes->commonName[i]);
-          }
-          printf("\n");
-          printf("------- END common name -------\n");
-        #endif
-
-        break;
-
-      default:
-        break;
+        default:
+          break;
+      }
+    }
+    else
+    {
+      LOG_WARNING("Attribute OID Unknown");
     }
 
   } while((attributeSetOffset += getNextFieldOffset(attributeSetOffset)) != endOfNameAttributesOffset);
