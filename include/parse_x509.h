@@ -124,7 +124,7 @@ Certificate  ::=  SEQUENCE  {
         subjectPublicKeyInfo SubjectPublicKeyInfo,
         issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
                              -- If present, version MUST be v2 or v3
-                             subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
+        subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
                              -- If present, version MUST be v2 or v3
         extensions      [3]  EXPLICIT Extensions OPTIONAL
                              -- If present, version MUST be v3
@@ -249,6 +249,12 @@ typedef struct
   PublicKeyInfoEnum ePublicKeyInfo;
 } PublicKeyInfo;
 
+/* Extension */
+typedef struct
+{
+  //TODO
+}Extensions;
+
 /* TBSCertificate */
 typedef struct
 {
@@ -260,6 +266,7 @@ typedef struct
   Validity validity;
   NameAttributes subject;
   PublicKeyInfo publicKeyInfo;
+  Extensions extensions;
 }TbsCertificate;
 
 typedef struct
@@ -314,6 +321,17 @@ CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, Signatur
  * @return CP_SUCCESS or CP_ERROR
  */
 CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
+
+/**
+ * @brief Parse the issuerUniqueID, subjectUniqueID and the extensions
+ *
+ * @param[in] tbsStartOffset the start offset of the tbsCertificate
+ * @param[in] extensionsOffset the start offset of the SubjectPublicKeyInfo
+ * @param[in,out] extensions pointer to Extensions that will hold the parsed components
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
+CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions);
 
 /**
  * @brief Parse X.509 Certificate

@@ -50,7 +50,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   CP_UINT8 DerClass;
   DerClass = getClass(firstElementOffset);
 
-  /* If the class of the first element is context specific, the the first element is the version */
+  /* If the class of the first element is context specific, then the first element is the version */
   if (DerClass == CONTEXT_SPECEFIC_CLASS)
   {
     CP_UINT8 * explicitWrapper = firstElementOffset;
@@ -235,7 +235,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   }
   #endif
 
-  /* TODO Parse subject */
+  /* Parse subject */
   subjectOffset = validityOffset + getNextFieldOffset(validityOffset);
   if (parseX509NameAttributes(subjectOffset, &(tbsCertificate->subject)) != CP_SUCCESS)
   {
@@ -390,6 +390,85 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
     printf("\n");
     printf("------- END public key -------\n");
   #endif
+
+  if (pareseX509Extensions(x509TbsCertDerOffset, publicKeyInfoOffset, &(tbsCertificate->extensions)) != CP_SUCCESS)
+  {
+    LOG_ERROR("Failed to parse the extensions");
+    return CP_ERROR;
+  }
+
+  return CP_SUCCESS;
+}
+
+CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions)
+{
+  /* the first element could be subjectUniqueID, issuerUniqueID or the extensions*/
+  CP_UINT8 * firstElementOffset = publicKeyInfoOffset + getNextFieldOffset(publicKeyInfoOffset);
+
+  /* the end offset of the tbs certificate*/
+  CP_UINT8 * x509tbsCertEndOffset = tbsCertStartOffset + getNextFieldOffset(tbsCertStartOffset);
+
+  CP_UINT8 numberOfProvidedElements = 0;
+
+  /* no subjectUniqueID, no issuerUniqueID and no extensions are provided*/
+  if (firstElementOffset == x509tbsCertEndOffset)
+  {
+    LOG_INFO("No Extensions are provided");
+    return CP_SUCCESS;
+  }
+
+  /* at least one of the three (subjectUniqueID, issuerUniqueID or the extensions) is provided*/
+  numberOfProvidedElements++;
+  LOG_INFO("Extensions are present");
+
+  CP_UINT8 * secondElementOffset = NULL;
+  CP_UINT8 * thirdElementOffset = NULL;
+
+  /* Determine if a second and a third elements are provided*/
+  CP_UINT8 * tmpOffset = firstElementOffset + getNextFieldOffset(firstElementOffset);
+  if(tmpOffset != x509tbsCertEndOffset)
+  {
+    secondElementOffset = tmpOffset;
+    numberOfProvidedElements++;
+
+    tmpOffset = secondElementOffset + getNextFieldOffset(secondElementOffset);
+    if (tmpOffset != x509tbsCertEndOffset)
+    {
+      thirdElementOffset = tmpOffset;
+      numberOfProvidedElements++;
+    }
+  }
+
+  CP_UINT8 * elements[3] = {firstElementOffset, secondElementOffset, thirdElementOffset};
+
+  for (CP_UINT8 i = 0; i < numberOfProvidedElements; i++)
+  {
+
+    if (getClass(elements[i]) != CONTEXT_SPECEFIC_CLASS)
+    {
+      LOG_ERROR("Extension Class is not context specific");
+      return CP_ERROR;
+    }
+
+    if (getTag(elements[i]) == ASN1_CONTEXT_SPECEFIC_ISSUER_UNIQUE_ID_TAG)
+    {
+      LOG_INFO("Element is issuerUniqueID");
+    }
+    else if (getTag(elements[i]) == ASN1_CONTEXT_SPECEFIC_SUBJECT_UNIQUE_ID_TAG)
+    {
+      LOG_INFO("Element is subjectUniqueID");
+    }
+    else if (getTag(elements[i]) == ASN1_CONTEXT_SPECEFIC_EXTENSIONS_TAG)
+    {
+      LOG_INFO("Element is extensions");
+    }
+    else
+    {
+      LOG_INFO("Element is Unknown, should be subjectUniqueID, issuerUniqueID or extensions");
+      return CP_ERROR;
+    }
+
+  }
 
   return CP_SUCCESS;
 }
