@@ -113,6 +113,7 @@ extern const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE];
 
 /* Extensions OIDs*/
 #define EXTENSION_BASIC_CONSTRAINTS_OID 0x13
+#define EXTENSION_KEY_USAGE_OID 0x0F
 
 /* x509 Certificate ASN.1 structure from rfc5280
 
@@ -264,11 +265,28 @@ typedef struct
   CP_UINT8 ca;
 }BasicConstraintsExtension;
 
+/* Key Usage Extension*/
+typedef struct
+{
+  CP_UINT8 isPresent;
+  CP_UINT8 isCritical;
+  CP_UINT8 digitalSignature;
+  CP_UINT8 nonRepudiation;
+  CP_UINT8 keyEncipherment;
+  CP_UINT8 dataEncipherment;
+  CP_UINT8 keyAgreement;
+  CP_UINT8 keyCertSign;
+  CP_UINT8 cRLSign;
+  CP_UINT8 encipherOnly;
+  CP_UINT8 decipherOnly;
+}KeyUsageExtension;
+
 /* Extension */
 typedef struct
 {
   //TODO
   BasicConstraintsExtension basicConstraints;
+  KeyUsageExtension keyUsage;
   CP_UINT8 numberOfExtensions;
 }Extensions;
 

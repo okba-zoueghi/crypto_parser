@@ -597,6 +597,105 @@ CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publi
               break;
             }
 
+            case EXTENSION_KEY_USAGE_OID:
+            {
+              extensions->keyUsage.isPresent = 1;
+              extensions->keyUsage.isCritical = isCritical;
+
+              if (getTag(extensionValue) != ASN1_BIT_STRING_TAG)
+              {
+                LOG_ERROR("Failed to parse the extension sequence tag");
+                return CP_ERROR;
+              }
+
+              CP_UINT8 keyUsageBits[9] = {0};
+
+              /* first byte -> how many bit are ignored in the third byte */
+              CP_UINT8 keyUsageBitString[3];
+
+              CP_UINT8 keyUsageBitStringSize = getField(keyUsageBitString, 3, extensionValue, INCLUDE_ZERO_LEADING_BYTES);
+              CP_UINT8 numberOfIgnoredBits = keyUsageBitString[0];
+              CP_UINT8 numberOfProvidedBits = ((keyUsageBitStringSize - 1)*8) - numberOfIgnoredBits;
+
+              /* get the first ( 8 - numberOfIgnoredBits) bits*/
+              for (CP_UINT8 shiftValue = numberOfIgnoredBits, i = 0; shiftValue < 8; shiftValue++, i++)
+              {
+                keyUsageBits[i] = (keyUsageBitString[keyUsageBitStringSize - 1] >> shiftValue)&1;
+              }
+
+              /* get the remaining bits (9 - ( 8 - numberOfIgnoredBits))*/
+              if ((keyUsageBitStringSize - 2) != 0)
+              {
+                CP_UINT8 numberOfRemainingBits = (9 - ( 8 - numberOfIgnoredBits));
+                for (CP_UINT8 i = 9 - numberOfRemainingBits, shiftValue = 0; i < 9; i++, shiftValue++)
+                {
+                  keyUsageBits[i] = (keyUsageBitString[keyUsageBitStringSize - 2] >> shiftValue)&1;
+                }
+              }
+
+              extensions->keyUsage.digitalSignature = keyUsageBits[0];
+              extensions->keyUsage.nonRepudiation = keyUsageBits[1];
+              extensions->keyUsage.keyEncipherment = keyUsageBits[2];
+              extensions->keyUsage.dataEncipherment = keyUsageBits[3];
+              extensions->keyUsage.keyAgreement = keyUsageBits[4];
+              extensions->keyUsage.keyCertSign = keyUsageBits[5];
+              extensions->keyUsage.cRLSign = keyUsageBits[6];
+              extensions->keyUsage.encipherOnly = keyUsageBits[7];
+              extensions->keyUsage.decipherOnly = keyUsageBits[8];
+
+              #if (DBGMSG == 1)
+                printf("------- BEGIN Key Usage Extension -------\n");
+                if (extensions->keyUsage.digitalSignature)
+                {
+                  printf("digitalSignature\n");
+                }
+
+                if (extensions->keyUsage.nonRepudiation)
+                {
+                  printf("nonRepudiation\n");
+                }
+
+                if (extensions->keyUsage.keyEncipherment)
+                {
+                  printf("keyEncipherment\n");
+                }
+
+                if (extensions->keyUsage.dataEncipherment)
+                {
+                  printf("dataEncipherment\n");
+                }
+
+                if (extensions->keyUsage.keyAgreement)
+                {
+                  printf("keyAgreement\n");
+                }
+
+                if (extensions->keyUsage.keyCertSign)
+                {
+                  printf("keyCertSign\n");
+                }
+
+                if (extensions->keyUsage.cRLSign)
+                {
+                  printf("cRLSign\n");
+                }
+
+                if (extensions->keyUsage.encipherOnly)
+                {
+                  printf("encipherOnly\n");
+                }
+
+                if (extensions->keyUsage.decipherOnly)
+                {
+                  printf("decipherOnly\n");
+                }
+
+                printf("------- END Key Usage Extension-------\n");
+              #endif
+
+              break;
+            }
+
             default:
               break;
           }
