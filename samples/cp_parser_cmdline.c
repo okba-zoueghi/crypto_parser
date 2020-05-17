@@ -416,10 +416,30 @@ void printX509(X509Cert * x509Cert)
   printf("\n");
 
   printf("\t X.509 Extensions (%d)\n", x509Cert->tbsCertificate.extensions.numberOfExtensions);
+
   if (x509Cert->tbsCertificate.extensions.basicConstraints.isPresent)
   {
     printf("\t\t Basic Constraints : %s\n", (x509Cert->tbsCertificate.extensions.basicConstraints.isCritical)? "Critical" : "Not Critical");
     printf("\t\t\t CA : %s\n", (x509Cert->tbsCertificate.extensions.basicConstraints.ca)? "TRUE" : "FALSE");
+  }
+
+  if (x509Cert->tbsCertificate.extensions.keyUsage.isPresent)
+  {
+    printf("\t\t Key Usage : %s\n", (x509Cert->tbsCertificate.extensions.keyUsage.isCritical)? "Critical" : "Not Critical");
+
+    x509Cert->tbsCertificate.extensions.keyUsage.digitalSignature? printf("\t\t\t Digital Signature \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.keyUsage.nonRepudiation? printf("\t\t\t Non Repudiation \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.keyUsage.keyEncipherment? printf("\t\t\t Key Encipherment \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.keyUsage.dataEncipherment? printf("\t\t\t Data Encipherment \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.keyUsage.keyAgreement? printf("\t\t\t Key Agreement \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.keyUsage.keyCertSign? printf("\t\t\t Key Cert Sign \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.keyUsage.cRLSign? printf("\t\t\t CRL Sign \n") : 0 ;
+
+    if (x509Cert->tbsCertificate.extensions.keyUsage.keyAgreement)
+    {
+      x509Cert->tbsCertificate.extensions.keyUsage.encipherOnly? printf("\t\t\t Encipher Only \n") : 0 ;
+      x509Cert->tbsCertificate.extensions.keyUsage.decipherOnly? printf("\t\t\t Decipher Only \n") : 0 ;
+    }
   }
 
   printf("\t Signature:\n");
