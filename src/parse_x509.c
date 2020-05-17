@@ -423,8 +423,8 @@ CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publi
   numberOfProvidedElements++;
   LOG_INFO("Extensions are present");
 
-  CP_UINT8 * secondElementOffset = NULL;
-  CP_UINT8 * thirdElementOffset = NULL;
+  CP_UINT8 * secondElementOffset = 0;
+  CP_UINT8 * thirdElementOffset = 0;
 
   /* Determine if a second and a third elements are provided*/
   CP_UINT8 * tmpOffset = firstElementOffset + getNextFieldOffset(firstElementOffset);
