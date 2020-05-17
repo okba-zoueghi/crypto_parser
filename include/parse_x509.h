@@ -107,6 +107,13 @@ extern const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE];
 #define ATTRIBUTE_TYPE_PSEUDONYM_OID 0x41
 #define ATTRIBUTE_TYPE_EMAIL_ADDRESS_OID 0x01
 
+/* Certificate Extension OID */
+#define CERTIFICATE_EXTENSION_OID_SIZE 2
+extern const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE];
+
+/* Extensions OIDs*/
+#define EXTENSION_BASIC_CONSTRAINTS_OID 0x13
+
 /* x509 Certificate ASN.1 structure from rfc5280
 
 Certificate  ::=  SEQUENCE  {
@@ -249,10 +256,20 @@ typedef struct
   PublicKeyInfoEnum ePublicKeyInfo;
 } PublicKeyInfo;
 
+/* Basic Constraints Extension*/
+typedef struct
+{
+  CP_UINT8 isPresent;
+  CP_UINT8 isCritical;
+  CP_UINT8 ca;
+}BasicConstraintsExtension;
+
 /* Extension */
 typedef struct
 {
   //TODO
+  BasicConstraintsExtension basicConstraints;
+  CP_UINT8 numberOfExtensions;
 }Extensions;
 
 /* TBSCertificate */

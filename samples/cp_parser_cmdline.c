@@ -415,6 +415,13 @@ void printX509(X509Cert * x509Cert)
   }
   printf("\n");
 
+  printf("\t X.509 Extensions (%d)\n", x509Cert->tbsCertificate.extensions.numberOfExtensions);
+  if (x509Cert->tbsCertificate.extensions.basicConstraints.isPresent)
+  {
+    printf("\t\t Basic Constraints : %s\n", (x509Cert->tbsCertificate.extensions.basicConstraints.isCritical)? "Critical" : "Not Critical");
+    printf("\t\t\t CA : %s\n", (x509Cert->tbsCertificate.extensions.basicConstraints.ca)? "TRUE" : "FALSE");
+  }
+
   printf("\t Signature:\n");
   printf("\t\t ");
   for (i = 0; i < x509Cert->signatureValue.signatureValueSize; i++)

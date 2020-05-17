@@ -29,6 +29,8 @@ const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0
 const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE] = {0x2B, 0x65};
 const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
 const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE] = {0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09};
+const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE] = {0x55, 0x1D};
+
 
 CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
@@ -461,6 +463,154 @@ CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publi
     else if (getTag(elements[i]) == ASN1_CONTEXT_SPECEFIC_EXTENSIONS_TAG)
     {
       LOG_INFO("Element is extensions");
+
+      /* element[i] is an explicit wrapper (the extensions are marked explicit in the spec)*/
+      CP_UINT8 * sequenceOfExtensionsOffset = elements[i] + getStructuredFieldDataOffset(elements[i]);
+
+      CP_UINT8 * extensionOffset = sequenceOfExtensionsOffset + getStructuredFieldDataOffset(sequenceOfExtensionsOffset);
+
+      CP_UINT8 numberOfExtensions = 0;
+
+      extensions->basicConstraints.isPresent = 0;
+
+      do
+      {
+        if (getTag(extensionOffset) != ASN1_SEQUENCE_TAG)
+        {
+          LOG_ERROR("Failed to parse extension sequence tag");
+          return CP_ERROR;
+        }
+
+        CP_UINT8 * extensionOidOffset = extensionOffset + getStructuredFieldDataOffset(extensionOffset);
+        if (getTag(extensionOidOffset) != ASN1_OID_TAG)
+        {
+          LOG_ERROR("Failed to parse extension OID tag");
+          return CP_ERROR;
+        }
+
+        CP_UINT8 * iodDataOffset = extensionOidOffset + 2;
+
+        CP_UINT8 isExtensionOidSupported = 1;
+
+        for (CP_UINT8 i = 0; i < CERTIFICATE_EXTENSION_OID_SIZE; i++)
+        {
+          if (iodDataOffset[i] != CERTIFICATE_EXTENSION_OID[i])
+          {
+            LOG_WARNING("Unknown extension OID");
+            isExtensionOidSupported = 0;
+          }
+        }
+
+        if (isExtensionOidSupported)
+        {
+          CP_UINT8 isCritical = 0;
+          CP_UINT8 * extensionOctetStringOffset;
+
+          /* Could be BOOLEAN (critical) or OCTET STRING (extension value)*/
+          CP_UINT8 * nextElementOffset = extensionOidOffset + getNextFieldOffset(extensionOidOffset);
+
+          /* The BOOLEAN value is optional and could be absent*/
+          if (getTag(nextElementOffset) == ASN1_BOOLEAN_TAG)
+          {
+            CP_UINT8 boolValue;
+            CP_UINT8 boolSize = getField(&boolValue, 1, nextElementOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+            if (boolValue == 0xff && boolSize == 1)
+            {
+              isCritical = 1;
+            }
+            else if (boolValue == 0x00 && boolSize == 1)
+            {
+              isCritical = 0;
+            }
+            else
+            {
+              LOG_ERROR("Failed to parse the extension critical bool");
+              return CP_ERROR;
+            }
+
+            extensionOctetStringOffset = nextElementOffset + getNextFieldOffset(nextElementOffset);
+          }
+          /* The BOOLEAN value is absent, hence use the default value */
+          else
+          {
+            extensionOctetStringOffset = nextElementOffset;
+            isCritical = 0;
+          }
+
+          if (getTag(extensionOctetStringOffset) != ASN1_OCTET_STRING_TAG)
+          {
+            LOG_ERROR("Failed to parse the extension octet string tag");
+            return CP_ERROR;
+          }
+
+          CP_UINT8 * extensionValue = extensionOctetStringOffset + getStructuredFieldDataOffset(extensionOctetStringOffset);
+
+          switch (iodDataOffset[2])
+          {
+            case EXTENSION_BASIC_CONSTRAINTS_OID:
+            {
+              extensions->basicConstraints.isPresent = 1;
+              extensions->basicConstraints.isCritical = isCritical;
+
+              if (getTag(extensionValue) != ASN1_SEQUENCE_TAG)
+              {
+                LOG_ERROR("Failed to parse the extension sequence tag");
+                return CP_ERROR;
+              }
+
+              /* Could be OPTIONAL BOOLEAN (ca) or INTEGER (pathLenConstaint)*/
+              CP_UINT8 * extensionValueFirstElementOffset = extensionValue + getStructuredFieldDataOffset(extensionValue);
+
+              if (getTag(extensionValueFirstElementOffset) == ASN1_BOOLEAN_TAG)
+              {
+                CP_UINT8 boolValue;
+                CP_UINT8 boolSize = getField(&boolValue, 1, nextElementOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+                if (boolValue == 0xff && boolSize == 1)
+                {
+                  extensions->basicConstraints.ca = 1;
+                }
+                else if (boolValue == 0x00 && boolSize == 1)
+                {
+                  extensions->basicConstraints.ca = 0;
+                }
+                else
+                {
+                  LOG_ERROR("Failed to parse the basic constraints ca ");
+                  return CP_ERROR;
+                }
+              }
+              else
+              {
+                extensions->basicConstraints.ca = 0;
+              }
+
+              #if (DBGMSG == 1)
+                LOG_INFO("Parsed the Basic Constraints Extension");
+                printf("------- BEGIN Basic Constraints Extension -------\n");
+                printf("critical : %d\n", extensions->basicConstraints.isCritical);
+                printf("ca : %d\n", extensions->basicConstraints.ca);
+                printf("------- END Basic Constraints Extension -------\n");
+              #endif
+
+              break;
+            }
+
+            default:
+              break;
+          }
+        }
+        numberOfExtensions++;
+      } while((extensionOffset+= getNextFieldOffset(extensionOffset)) != x509tbsCertEndOffset);
+
+      extensions->numberOfExtensions = numberOfExtensions;
+
+      #if (DBGMSG == 1)
+        printf("------- BEGIN Number Of Extension -------\n");
+        printf("number of extensions : %d\n", extensions->numberOfExtensions);
+        printf("------- END Number Of Extension-------\n");
+      #endif
     }
     else
     {
