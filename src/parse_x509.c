@@ -645,51 +645,18 @@ CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publi
 
               #if (DBGMSG == 1)
                 printf("------- BEGIN Key Usage Extension -------\n");
-                if (extensions->keyUsage.digitalSignature)
-                {
-                  printf("digitalSignature\n");
-                }
-
-                if (extensions->keyUsage.nonRepudiation)
-                {
-                  printf("nonRepudiation\n");
-                }
-
-                if (extensions->keyUsage.keyEncipherment)
-                {
-                  printf("keyEncipherment\n");
-                }
-
-                if (extensions->keyUsage.dataEncipherment)
-                {
-                  printf("dataEncipherment\n");
-                }
-
+                extensions->keyUsage.digitalSignature? printf("Digital Signature \n") : 0 ;
+                extensions->keyUsage.nonRepudiation? printf("Non Repudiation \n") : 0 ;
+                extensions->keyUsage.keyEncipherment? printf("Key Encipherment \n") : 0 ;
+                extensions->keyUsage.dataEncipherment? printf("Data Encipherment \n") : 0 ;
+                extensions->keyUsage.keyAgreement? printf("Key Agreement \n") : 0 ;
+                extensions->keyUsage.keyCertSign? printf("Key Cert Sign \n") : 0 ;
+                extensions->keyUsage.cRLSign? printf("CRL Sign \n") : 0 ;
                 if (extensions->keyUsage.keyAgreement)
                 {
-                  printf("keyAgreement\n");
+                  extensions->keyUsage.encipherOnly? printf("Encipher Only \n") : 0 ;
+                  extensions->keyUsage.decipherOnly? printf("Decipher Only \n") : 0 ;
                 }
-
-                if (extensions->keyUsage.keyCertSign)
-                {
-                  printf("keyCertSign\n");
-                }
-
-                if (extensions->keyUsage.cRLSign)
-                {
-                  printf("cRLSign\n");
-                }
-
-                if (extensions->keyUsage.encipherOnly)
-                {
-                  printf("encipherOnly\n");
-                }
-
-                if (extensions->keyUsage.decipherOnly)
-                {
-                  printf("decipherOnly\n");
-                }
-
                 printf("------- END Key Usage Extension-------\n");
               #endif
 
