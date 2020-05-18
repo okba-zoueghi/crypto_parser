@@ -68,17 +68,17 @@
   typedef int8_t      CP_SINT8;
 #else
   /** 64 bit unsigned integer. */
-  typedef unsigned long long CP_UINT64;
+  typedef unsigned long CP_UINT64;
   /** 64 bit signed integer. */
-  typedef signed long long CP_SINT64;
+  typedef signed long CP_SINT64;
   /** 32 bit unsigned integer. */
-  typedef unsigned long CP_UINT32;
+  typedef unsigned int CP_UINT32;
   /** 16 bit unsigned integer. */
   typedef unsigned short CP_UINT16;
   /** 8 bit unsigned integer. */
   typedef unsigned char CP_UINT8;
   /** 32 bit signed integer. */
-  typedef signed long CP_SINT32;
+  typedef signed int CP_SINT32;
   /** 16 bit signed integer. */
   typedef signed short CP_SINT16;
   /** 8 bit signed integer. */
