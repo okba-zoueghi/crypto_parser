@@ -1,5 +1,8 @@
 build
 
+doc/html
+doc/latex
+
 *.der
 
 *.pem
