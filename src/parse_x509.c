@@ -30,7 +30,8 @@ const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE] = {0x2B, 0x65};
 const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
 const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE] = {0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09};
 const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE] = {0x55, 0x1D};
-
+const CP_UINT8 KEY_PURPOSE_OID[KEY_PURPOSE_OID_SIZE] = {0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03};
+const CP_UINT8 KEY_PURPOSE_ANY_USAGE_OID[KEY_PURPOSE_ANY_USAGE_OID_SIZE] = {0x55, 0x1D, 0x25, 0x00};
 
 CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
@@ -472,6 +473,8 @@ CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publi
       CP_UINT8 numberOfExtensions = 0;
 
       extensions->basicConstraints.isPresent = 0;
+      extensions->keyUsage.isPresent = 0;
+      extensions->extentedKeyUsage.isPresent = 0;
 
       do
       {
@@ -658,6 +661,130 @@ CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publi
                   extensions->keyUsage.decipherOnly? printf("Decipher Only \n") : 0 ;
                 }
                 printf("------- END Key Usage Extension-------\n");
+              #endif
+
+              break;
+            }
+
+            case EXTENSION_EXTENDED_KEY_USAGE:
+            {
+              extensions->extentedKeyUsage.isPresent = 1;
+              extensions->extentedKeyUsage.isCritical = isCritical;
+              extensions->extentedKeyUsage.anyUsage = 0;
+              extensions->extentedKeyUsage.serverAuthentication = 0;
+              extensions->extentedKeyUsage.clientAuthentication = 0;
+              extensions->extentedKeyUsage.codeSigning = 0;
+              extensions->extentedKeyUsage.emailProtection = 0;
+              extensions->extentedKeyUsage.timeStamping = 0;
+              extensions->extentedKeyUsage.ocspSigning = 0;
+
+              if (getTag(extensionValue) != ASN1_SEQUENCE_TAG)
+              {
+                LOG_ERROR("Failed to parse the extension sequence tag");
+                return CP_ERROR;
+              }
+
+              /* the extension value is a sequence of 1 .. max OBJECT IDENTIFIER
+               * get the end offset of the sequence
+              */
+              CP_UINT8 * extensionValueEndOffset = extensionValue + getNextFieldOffset(extensionValue);
+
+              /* Loop through the OIDs */
+              CP_UINT8 * keyPurposeOidOffset = extensionValue + getStructuredFieldDataOffset(extensionValue);
+
+              do
+              {
+
+                if (getTag(keyPurposeOidOffset) != ASN1_OID_TAG)
+                {
+                  LOG_ERROR("Failed to parse the key purpose oid tag");
+                  return CP_ERROR;
+                }
+
+                CP_UINT8 * keyPurposeOidDataOffset = keyPurposeOidOffset + 2;
+
+                /* could be both true*/
+                CP_UINT8 keyPurposeAnyUsage = 1;
+                CP_UINT8 keyPurposeSpecificUsage = 1;
+
+                for (CP_UINT8 i = 0; i < KEY_PURPOSE_ANY_USAGE_OID_SIZE; i++)
+                {
+                  if (keyPurposeOidDataOffset[i] != KEY_PURPOSE_ANY_USAGE_OID[i])
+                  {
+                    keyPurposeAnyUsage = 0;
+                  }
+                }
+
+                /* set any usage to 1 if the oid matchs the any_usage_oid*/
+                extensions->extentedKeyUsage.anyUsage = keyPurposeAnyUsage? 1 : 0;
+
+                for (CP_UINT8 i = 0; i < KEY_PURPOSE_OID_SIZE; i++)
+                {
+                  if (keyPurposeOidDataOffset[i] != KEY_PURPOSE_OID[i])
+                  {
+                    keyPurposeSpecificUsage = 0;
+                  }
+                }
+
+                if (keyPurposeSpecificUsage)
+                {
+                  switch (keyPurposeOidDataOffset[KEY_PURPOSE_OID_SIZE])
+                  {
+                    case KEY_PURPOSE_SERVER_AUTHENTICATION:
+                    {
+                      extensions->extentedKeyUsage.serverAuthentication = 1;
+                      break;
+                    }
+
+                    case KEY_PURPOSE_CLIENT_AUTHENTICATION:
+                    {
+                      extensions->extentedKeyUsage.clientAuthentication = 1;
+                      break;
+                    }
+
+                    case KEY_PURPOSE_CODE_SIGNING:
+                    {
+                      extensions->extentedKeyUsage.codeSigning = 1;
+                      break;
+                    }
+
+                    case KEY_PURPOSE_EMAIL_PROTECTION:
+                    {
+                      extensions->extentedKeyUsage.emailProtection = 1;
+                      break;
+                    }
+
+                    case KEY_PURPOSE_TIME_STAMPING:
+                    {
+                      extensions->extentedKeyUsage.timeStamping = 1;
+                      break;
+                    }
+
+                    case KEY_PURPOSE_OCSP_SIGNING:
+                    {
+                      extensions->extentedKeyUsage.ocspSigning = 1;
+                      break;
+                    }
+
+                    default:
+                      LOG_INFO("Key purpose extended extension OID unkonwn");
+                      return CP_ERROR;
+                  }
+                }
+
+
+              } while((keyPurposeOidOffset += getNextFieldOffset(keyPurposeOidOffset)) != extensionValueEndOffset);
+
+              #if (DBGMSG == 1)
+                printf("------- BEGIN Extended Key Usage Extension -------\n");
+                extensions->extentedKeyUsage.anyUsage? printf("Any usage \n") : 0 ;
+                extensions->extentedKeyUsage.serverAuthentication? printf("TLS WWW server authentication \n") : 0 ;
+                extensions->extentedKeyUsage.clientAuthentication? printf("TLS WWW client authentication \n") : 0 ;
+                extensions->extentedKeyUsage.codeSigning? printf("Signing of downloadable executable code \n") : 0 ;
+                extensions->extentedKeyUsage.emailProtection? printf("Email protection \n") : 0 ;
+                extensions->extentedKeyUsage.timeStamping? printf("Binding the hash of an object to a time \n") : 0 ;
+                extensions->extentedKeyUsage.ocspSigning? printf("Signing OCSP responses \n") : 0 ;
+                printf("------- END Extended Key Usage Extension-------\n");
               #endif
 
               break;

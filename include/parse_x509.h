@@ -114,6 +114,19 @@ extern const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE];
 /* Extensions OIDs*/
 #define EXTENSION_BASIC_CONSTRAINTS_OID 0x13
 #define EXTENSION_KEY_USAGE_OID 0x0F
+#define EXTENSION_EXTENDED_KEY_USAGE 0x25
+
+/* OIDs needed for parsing the extented key usage extension*/
+#define KEY_PURPOSE_OID_SIZE 0x07
+#define KEY_PURPOSE_ANY_USAGE_OID_SIZE 0x04
+extern const CP_UINT8 KEY_PURPOSE_OID[KEY_PURPOSE_OID_SIZE];
+extern const CP_UINT8 KEY_PURPOSE_ANY_USAGE_OID[KEY_PURPOSE_ANY_USAGE_OID_SIZE];
+#define KEY_PURPOSE_SERVER_AUTHENTICATION 0x01
+#define KEY_PURPOSE_CLIENT_AUTHENTICATION 0x02
+#define KEY_PURPOSE_CODE_SIGNING 0x03
+#define KEY_PURPOSE_EMAIL_PROTECTION 0x04
+#define KEY_PURPOSE_TIME_STAMPING 0x08
+#define KEY_PURPOSE_OCSP_SIGNING 0x09
 
 /* x509 Certificate ASN.1 structure from rfc5280
 
@@ -281,12 +294,27 @@ typedef struct
   CP_UINT8 decipherOnly;
 }KeyUsageExtension;
 
+/* Extended Key Usage Extension*/
+typedef struct
+{
+  CP_UINT8 isPresent;
+  CP_UINT8 isCritical;
+  CP_UINT8 anyUsage;
+  CP_UINT8 serverAuthentication;
+  CP_UINT8 clientAuthentication;
+  CP_UINT8 codeSigning;
+  CP_UINT8 emailProtection;
+  CP_UINT8 timeStamping;
+  CP_UINT8 ocspSigning;
+}ExtentedKeyUsageExtension;
+
 /* Extension */
 typedef struct
 {
   //TODO
   BasicConstraintsExtension basicConstraints;
   KeyUsageExtension keyUsage;
+  ExtentedKeyUsageExtension extentedKeyUsage;
   CP_UINT8 numberOfExtensions;
 }Extensions;
 
