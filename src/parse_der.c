@@ -61,8 +61,14 @@ CP_UINT32 getStructuredFieldDataOffset(CP_UINT8 * input)
 {
   CP_UINT32 startOffset;
   CP_UINT8 dataSize = input[1];
+
+  /* the structured element is empty*/
+  if (dataSize == 0)
+  {
+    startOffset = 0;
+  }
   //The seqence size field is only one byte
-  if(dataSize > MIN_ONE_BYTE_LENGTH && dataSize < MAX_ONE_BYTE_LENGTH)
+  else if(dataSize > MIN_ONE_BYTE_LENGTH && dataSize < MAX_ONE_BYTE_LENGTH)
   {
     startOffset = 2U; //2U --> 1 byte for the tag + 1 byte for the size field
   }
