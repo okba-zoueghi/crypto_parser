@@ -442,6 +442,19 @@ void printX509(X509Cert * x509Cert)
     }
   }
 
+  if (x509Cert->tbsCertificate.extensions.extentedKeyUsage.isPresent)
+  {
+    printf("\t\t Extended Key Usage : %s\n", (x509Cert->tbsCertificate.extensions.extentedKeyUsage.isCritical)? "Critical" : "Not Critical");
+
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.anyUsage? printf("\t\t\t Any usage \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.serverAuthentication? printf("\t\t\t TLS WWW server authentication \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.clientAuthentication? printf("\t\t\t TLS WWW client authentication \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.codeSigning? printf("\t\t\t Signing of downloadable executable code \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.emailProtection? printf("\t\t\t Email protection \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.timeStamping? printf("\t\t\t Binding the hash of an object to a time \n") : 0 ;
+    x509Cert->tbsCertificate.extensions.extentedKeyUsage.ocspSigning? printf("\t\t\t Signing OCSP responses \n") : 0 ;
+  }
+
   printf("\t Signature:\n");
   printf("\t\t ");
   for (i = 0; i < x509Cert->signatureValue.signatureValueSize; i++)
