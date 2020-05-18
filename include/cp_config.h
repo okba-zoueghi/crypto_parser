@@ -39,6 +39,28 @@
  */
 #define DBGMSG 0
 
+/*
+ * If you decide to not use the types from the C standard library, you must configure the crypto parser types according
+ * to your architecture. The configuration below is a default one and may not be suitable for your architecture.
+ */
+#if (USE_C_STDLIB_TYPES == 0)
+  /** 64 bit unsigned integer. */
+  typedef unsigned long CP_UINT64;
+  /** 64 bit signed integer. */
+  typedef signed long CP_SINT64;
+  /** 32 bit unsigned integer. */
+  typedef unsigned int CP_UINT32;
+  /** 16 bit unsigned integer. */
+  typedef unsigned short CP_UINT16;
+  /** 8 bit unsigned integer. */
+  typedef unsigned char CP_UINT8;
+  /** 32 bit signed integer. */
+  typedef signed int CP_SINT32;
+  /** 16 bit signed integer. */
+  typedef signed short CP_SINT16;
+  /** 8 bit signed integer. */
+  typedef signed char CP_SINT8;
+#endif
 /******************************************************************************/
 /* End                                                                        */
 /******************************************************************************/
@@ -48,7 +70,7 @@
 /* PLEASE DON'T MODIFY!!!!!                                                   */
 /******************************************************************************/
 
-#if USE_C_STDLIB_TYPES == 1
+#if (USE_C_STDLIB_TYPES == 1)
   #include <stdint.h>
   /** 64 bit unsigned integer typedef */
   typedef uint64_t    CP_UINT64;
@@ -66,26 +88,9 @@
   typedef int16_t     CP_SINT16;
   /** 8 bit signed integer typedef */
   typedef int8_t      CP_SINT8;
-#else
-  /** 64 bit unsigned integer. */
-  typedef unsigned long CP_UINT64;
-  /** 64 bit signed integer. */
-  typedef signed long CP_SINT64;
-  /** 32 bit unsigned integer. */
-  typedef unsigned int CP_UINT32;
-  /** 16 bit unsigned integer. */
-  typedef unsigned short CP_UINT16;
-  /** 8 bit unsigned integer. */
-  typedef unsigned char CP_UINT8;
-  /** 32 bit signed integer. */
-  typedef signed int CP_SINT32;
-  /** 16 bit signed integer. */
-  typedef signed short CP_SINT16;
-  /** 8 bit signed integer. */
-  typedef signed char CP_SINT8;
 #endif /* end USE_C_STDLIB_TYPES */
 
-#if DBGMSG == 1
+#if (DBGMSG == 1)
   #include <stdio.h>
   #define LOG_INFO(m) printf("[INFO] %s \n", m)
   #define LOG_ERROR(m) printf("[ERROR] %s \n", m)
