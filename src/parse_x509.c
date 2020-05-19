@@ -403,6 +403,55 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   return CP_SUCCESS;
 }
 
+CPErrorCode parseX509BasicConstraintsExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, BasicConstraintsExtension * basicConstraints)
+{
+  basicConstraints->isPresent = 1;
+  basicConstraints->isCritical = isCritical;
+
+  if (getTag(extensionOffset) != ASN1_SEQUENCE_TAG)
+  {
+    LOG_ERROR("Failed to parse the extension sequence tag");
+    return CP_ERROR;
+  }
+
+  /* Could be OPTIONAL BOOLEAN (ca) or INTEGER (pathLenConstaint)*/
+  CP_UINT8 * extensionValueFirstElementOffset = extensionOffset + getStructuredFieldDataOffset(extensionOffset);
+
+  if (getTag(extensionValueFirstElementOffset) == ASN1_BOOLEAN_TAG)
+  {
+    CP_UINT8 boolValue;
+    CP_UINT8 boolSize = getField(&boolValue, 1, extensionValueFirstElementOffset, INCLUDE_ZERO_LEADING_BYTES);
+
+    if (boolValue == 0xff && boolSize == 1)
+    {
+      basicConstraints->ca = 1;
+    }
+    else if (boolValue == 0x00 && boolSize == 1)
+    {
+      basicConstraints->ca = 0;
+    }
+    else
+    {
+      LOG_ERROR("Failed to parse the basic constraints ca ");
+      return CP_ERROR;
+    }
+  }
+  else
+  {
+    basicConstraints->ca = 0;
+  }
+
+  #if (DBGMSG == 1)
+    LOG_INFO("Parsed the Basic Constraints Extension");
+    printf("------- BEGIN Basic Constraints Extension -------\n");
+    printf("critical : %d\n", basicConstraints->isCritical);
+    printf("ca : %d\n", basicConstraints->ca);
+    printf("------- END Basic Constraints Extension -------\n");
+  #endif
+
+  return CP_SUCCESS;
+}
+
 CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions)
 {
   /* the first element could be subjectUniqueID, issuerUniqueID or the extensions*/
@@ -553,49 +602,10 @@ CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * public
           {
             case EXTENSION_BASIC_CONSTRAINTS_OID:
             {
-              extensions->basicConstraints.isPresent = 1;
-              extensions->basicConstraints.isCritical = isCritical;
-
-              if (getTag(extensionValue) != ASN1_SEQUENCE_TAG)
+              if (parseX509BasicConstraintsExtension(extensionValue, isCritical, &(extensions->basicConstraints)) != CP_SUCCESS)
               {
-                LOG_ERROR("Failed to parse the extension sequence tag");
                 return CP_ERROR;
               }
-
-              /* Could be OPTIONAL BOOLEAN (ca) or INTEGER (pathLenConstaint)*/
-              CP_UINT8 * extensionValueFirstElementOffset = extensionValue + getStructuredFieldDataOffset(extensionValue);
-
-              if (getTag(extensionValueFirstElementOffset) == ASN1_BOOLEAN_TAG)
-              {
-                CP_UINT8 boolValue;
-                CP_UINT8 boolSize = getField(&boolValue, 1, nextElementOffset, INCLUDE_ZERO_LEADING_BYTES);
-
-                if (boolValue == 0xff && boolSize == 1)
-                {
-                  extensions->basicConstraints.ca = 1;
-                }
-                else if (boolValue == 0x00 && boolSize == 1)
-                {
-                  extensions->basicConstraints.ca = 0;
-                }
-                else
-                {
-                  LOG_ERROR("Failed to parse the basic constraints ca ");
-                  return CP_ERROR;
-                }
-              }
-              else
-              {
-                extensions->basicConstraints.ca = 0;
-              }
-
-              #if (DBGMSG == 1)
-                LOG_INFO("Parsed the Basic Constraints Extension");
-                printf("------- BEGIN Basic Constraints Extension -------\n");
-                printf("critical : %d\n", extensions->basicConstraints.isCritical);
-                printf("ca : %d\n", extensions->basicConstraints.ca);
-                printf("------- END Basic Constraints Extension -------\n");
-              #endif
 
               break;
             }

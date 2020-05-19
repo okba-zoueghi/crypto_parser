@@ -386,6 +386,17 @@ CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, Signatur
 CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
 
 /**
+ * @brief Parse the Basic Constraints Extension
+ *
+ * @param[in] extensionOffset the start offset of the extension
+ * @param[in] isCritical indicates whether the extension is critical
+ * @param[in,out] basicConstraints pointer to BasicConstraintsExtension that will hold the parsed extension
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
+CPErrorCode parseX509BasicConstraintsExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, BasicConstraintsExtension * basicConstraints);
+
+/**
  * @brief Parse the issuerUniqueID, subjectUniqueID and the extensions
  *
  * @param[in] tbsStartOffset the start offset of the tbsCertificate
