@@ -452,6 +452,72 @@ CPErrorCode parseX509BasicConstraintsExtension(CP_UINT8 * extensionOffset, CP_UI
   return CP_SUCCESS;
 }
 
+CPErrorCode parseX509KeyUsageExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, KeyUsageExtension * keyUsage)
+{
+  keyUsage->isPresent = 1;
+  keyUsage->isCritical = isCritical;
+
+  if (getTag(extensionOffset) != ASN1_BIT_STRING_TAG)
+  {
+    LOG_ERROR("Failed to parse the extension sequence tag");
+    return CP_ERROR;
+  }
+
+  CP_UINT8 keyUsageBits[9] = {0};
+
+  /* first byte -> how many bit are ignored in the third byte */
+  CP_UINT8 keyUsageBitString[3];
+
+  CP_UINT8 keyUsageBitStringSize = getField(keyUsageBitString, 3, extensionOffset, INCLUDE_ZERO_LEADING_BYTES);
+  CP_UINT8 numberOfIgnoredBits = keyUsageBitString[0];
+  CP_UINT8 numberOfProvidedBits = ((keyUsageBitStringSize - 1)*8) - numberOfIgnoredBits;
+
+  /* get the first ( 8 - numberOfIgnoredBits) bits*/
+  for (CP_UINT8 shiftValue = numberOfIgnoredBits, i = 0; shiftValue < 8; shiftValue++, i++)
+  {
+    keyUsageBits[i] = (keyUsageBitString[keyUsageBitStringSize - 1] >> shiftValue)&1;
+  }
+
+  /* get the remaining bits (9 - ( 8 - numberOfIgnoredBits))*/
+  if ((keyUsageBitStringSize - 2) != 0)
+  {
+    CP_UINT8 numberOfRemainingBits = (9 - ( 8 - numberOfIgnoredBits));
+    for (CP_UINT8 i = 9 - numberOfRemainingBits, shiftValue = 0; i < 9; i++, shiftValue++)
+    {
+      keyUsageBits[i] = (keyUsageBitString[keyUsageBitStringSize - 2] >> shiftValue)&1;
+    }
+  }
+
+  keyUsage->digitalSignature = keyUsageBits[0];
+  keyUsage->nonRepudiation = keyUsageBits[1];
+  keyUsage->keyEncipherment = keyUsageBits[2];
+  keyUsage->dataEncipherment = keyUsageBits[3];
+  keyUsage->keyAgreement = keyUsageBits[4];
+  keyUsage->keyCertSign = keyUsageBits[5];
+  keyUsage->cRLSign = keyUsageBits[6];
+  keyUsage->encipherOnly = keyUsageBits[7];
+  keyUsage->decipherOnly = keyUsageBits[8];
+
+  #if (DBGMSG == 1)
+    printf("------- BEGIN Key Usage Extension -------\n");
+    keyUsage->digitalSignature? printf("Digital Signature \n") : 0 ;
+    keyUsage->nonRepudiation? printf("Non Repudiation \n") : 0 ;
+    keyUsage->keyEncipherment? printf("Key Encipherment \n") : 0 ;
+    keyUsage->dataEncipherment? printf("Data Encipherment \n") : 0 ;
+    keyUsage->keyAgreement? printf("Key Agreement \n") : 0 ;
+    keyUsage->keyCertSign? printf("Key Cert Sign \n") : 0 ;
+    keyUsage->cRLSign? printf("CRL Sign \n") : 0 ;
+    if (keyUsage->keyAgreement)
+    {
+      keyUsage->encipherOnly? printf("Encipher Only \n") : 0 ;
+      keyUsage->decipherOnly? printf("Decipher Only \n") : 0 ;
+    }
+    printf("------- END Key Usage Extension-------\n");
+  #endif
+
+  return CP_SUCCESS;
+}
+
 CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions)
 {
   /* the first element could be subjectUniqueID, issuerUniqueID or the extensions*/
@@ -612,66 +678,10 @@ CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * public
 
             case EXTENSION_KEY_USAGE_OID:
             {
-              extensions->keyUsage.isPresent = 1;
-              extensions->keyUsage.isCritical = isCritical;
-
-              if (getTag(extensionValue) != ASN1_BIT_STRING_TAG)
+              if (parseX509KeyUsageExtension(extensionValue, isCritical, &(extensions->keyUsage)) != CP_SUCCESS)
               {
-                LOG_ERROR("Failed to parse the extension sequence tag");
                 return CP_ERROR;
               }
-
-              CP_UINT8 keyUsageBits[9] = {0};
-
-              /* first byte -> how many bit are ignored in the third byte */
-              CP_UINT8 keyUsageBitString[3];
-
-              CP_UINT8 keyUsageBitStringSize = getField(keyUsageBitString, 3, extensionValue, INCLUDE_ZERO_LEADING_BYTES);
-              CP_UINT8 numberOfIgnoredBits = keyUsageBitString[0];
-              CP_UINT8 numberOfProvidedBits = ((keyUsageBitStringSize - 1)*8) - numberOfIgnoredBits;
-
-              /* get the first ( 8 - numberOfIgnoredBits) bits*/
-              for (CP_UINT8 shiftValue = numberOfIgnoredBits, i = 0; shiftValue < 8; shiftValue++, i++)
-              {
-                keyUsageBits[i] = (keyUsageBitString[keyUsageBitStringSize - 1] >> shiftValue)&1;
-              }
-
-              /* get the remaining bits (9 - ( 8 - numberOfIgnoredBits))*/
-              if ((keyUsageBitStringSize - 2) != 0)
-              {
-                CP_UINT8 numberOfRemainingBits = (9 - ( 8 - numberOfIgnoredBits));
-                for (CP_UINT8 i = 9 - numberOfRemainingBits, shiftValue = 0; i < 9; i++, shiftValue++)
-                {
-                  keyUsageBits[i] = (keyUsageBitString[keyUsageBitStringSize - 2] >> shiftValue)&1;
-                }
-              }
-
-              extensions->keyUsage.digitalSignature = keyUsageBits[0];
-              extensions->keyUsage.nonRepudiation = keyUsageBits[1];
-              extensions->keyUsage.keyEncipherment = keyUsageBits[2];
-              extensions->keyUsage.dataEncipherment = keyUsageBits[3];
-              extensions->keyUsage.keyAgreement = keyUsageBits[4];
-              extensions->keyUsage.keyCertSign = keyUsageBits[5];
-              extensions->keyUsage.cRLSign = keyUsageBits[6];
-              extensions->keyUsage.encipherOnly = keyUsageBits[7];
-              extensions->keyUsage.decipherOnly = keyUsageBits[8];
-
-              #if (DBGMSG == 1)
-                printf("------- BEGIN Key Usage Extension -------\n");
-                extensions->keyUsage.digitalSignature? printf("Digital Signature \n") : 0 ;
-                extensions->keyUsage.nonRepudiation? printf("Non Repudiation \n") : 0 ;
-                extensions->keyUsage.keyEncipherment? printf("Key Encipherment \n") : 0 ;
-                extensions->keyUsage.dataEncipherment? printf("Data Encipherment \n") : 0 ;
-                extensions->keyUsage.keyAgreement? printf("Key Agreement \n") : 0 ;
-                extensions->keyUsage.keyCertSign? printf("Key Cert Sign \n") : 0 ;
-                extensions->keyUsage.cRLSign? printf("CRL Sign \n") : 0 ;
-                if (extensions->keyUsage.keyAgreement)
-                {
-                  extensions->keyUsage.encipherOnly? printf("Encipher Only \n") : 0 ;
-                  extensions->keyUsage.decipherOnly? printf("Decipher Only \n") : 0 ;
-                }
-                printf("------- END Key Usage Extension-------\n");
-              #endif
 
               break;
             }

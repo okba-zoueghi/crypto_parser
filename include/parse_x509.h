@@ -397,6 +397,17 @@ CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAtt
 CPErrorCode parseX509BasicConstraintsExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, BasicConstraintsExtension * basicConstraints);
 
 /**
+ * @brief Parse the Key Usage Extension
+ *
+ * @param[in] extensionOffset the start offset of the extension
+ * @param[in] isCritical indicates whether the extension is critical
+ * @param[in,out] keyUsage pointer to KeyUsageExtension that will hold the parsed extension
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
+CPErrorCode parseX509KeyUsageExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, KeyUsageExtension * keyUsage);
+
+/**
  * @brief Parse the issuerUniqueID, subjectUniqueID and the extensions
  *
  * @param[in] tbsStartOffset the start offset of the tbsCertificate
