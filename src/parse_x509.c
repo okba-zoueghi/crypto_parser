@@ -394,7 +394,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
     printf("------- END public key -------\n");
   #endif
 
-  if (pareseX509Extensions(x509TbsCertDerOffset, publicKeyInfoOffset, &(tbsCertificate->extensions)) != CP_SUCCESS)
+  if (parseX509Extensions(x509TbsCertDerOffset, publicKeyInfoOffset, &(tbsCertificate->extensions)) != CP_SUCCESS)
   {
     LOG_ERROR("Failed to parse the extensions");
     return CP_ERROR;
@@ -403,7 +403,7 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
   return CP_SUCCESS;
 }
 
-CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions)
+CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions)
 {
   /* the first element could be subjectUniqueID, issuerUniqueID or the extensions*/
   CP_UINT8 * firstElementOffset = publicKeyInfoOffset + getNextFieldOffset(publicKeyInfoOffset);

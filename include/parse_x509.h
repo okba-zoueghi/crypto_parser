@@ -394,7 +394,7 @@ CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAtt
  *
  * @return CP_SUCCESS or CP_ERROR
  */
-CPErrorCode pareseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions);
+CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions);
 
 /**
  * @brief Parse X.509 Certificate
