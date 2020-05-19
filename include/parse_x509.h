@@ -408,6 +408,17 @@ CPErrorCode parseX509BasicConstraintsExtension(CP_UINT8 * extensionOffset, CP_UI
 CPErrorCode parseX509KeyUsageExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, KeyUsageExtension * keyUsage);
 
 /**
+ * @brief Parse the Extended Key Usage Extension
+ *
+ * @param[in] extensionOffset the start offset of the extension
+ * @param[in] isCritical indicates whether the extension is critical
+ * @param[in,out] extentedKeyUsage pointer to ExtentedKeyUsageExtension that will hold the parsed extension
+ *
+ * @return CP_SUCCESS or CP_ERROR
+ */
+CPErrorCode parseX509ExtendedKeyUsageExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, ExtentedKeyUsageExtension * extentedKeyUsage);
+
+/**
  * @brief Parse the issuerUniqueID, subjectUniqueID and the extensions
  *
  * @param[in] tbsStartOffset the start offset of the tbsCertificate

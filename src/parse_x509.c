@@ -518,6 +518,130 @@ CPErrorCode parseX509KeyUsageExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCr
   return CP_SUCCESS;
 }
 
+CPErrorCode parseX509ExtendedKeyUsageExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, ExtentedKeyUsageExtension * extentedKeyUsage)
+{
+  extentedKeyUsage->isPresent = 1;
+  extentedKeyUsage->isCritical = isCritical;
+  extentedKeyUsage->anyUsage = 0;
+  extentedKeyUsage->serverAuthentication = 0;
+  extentedKeyUsage->clientAuthentication = 0;
+  extentedKeyUsage->codeSigning = 0;
+  extentedKeyUsage->emailProtection = 0;
+  extentedKeyUsage->timeStamping = 0;
+  extentedKeyUsage->ocspSigning = 0;
+
+  if (getTag(extensionOffset) != ASN1_SEQUENCE_TAG)
+  {
+    LOG_ERROR("Failed to parse the extension sequence tag");
+    return CP_ERROR;
+  }
+
+  /* the extension value is a sequence of 1 .. max OBJECT IDENTIFIER
+   * get the end offset of the sequence
+  */
+  CP_UINT8 * extensionValueEndOffset = extensionOffset + getNextFieldOffset(extensionOffset);
+
+  /* Loop through the OIDs */
+  CP_UINT8 * keyPurposeOidOffset = extensionOffset + getStructuredFieldDataOffset(extensionOffset);
+
+  do
+  {
+
+    if (getTag(keyPurposeOidOffset) != ASN1_OID_TAG)
+    {
+      LOG_ERROR("Failed to parse the key purpose oid tag");
+      return CP_ERROR;
+    }
+
+    CP_UINT8 * keyPurposeOidDataOffset = keyPurposeOidOffset + 2;
+
+    /* could be both true*/
+    CP_UINT8 keyPurposeAnyUsage = 1;
+    CP_UINT8 keyPurposeSpecificUsage = 1;
+
+    for (CP_UINT8 i = 0; i < KEY_PURPOSE_ANY_USAGE_OID_SIZE; i++)
+    {
+      if (keyPurposeOidDataOffset[i] != KEY_PURPOSE_ANY_USAGE_OID[i])
+      {
+        keyPurposeAnyUsage = 0;
+      }
+    }
+
+    /* set any usage to 1 if the oid matchs the any_usage_oid*/
+    extentedKeyUsage->anyUsage = keyPurposeAnyUsage? 1 : 0;
+
+    for (CP_UINT8 i = 0; i < KEY_PURPOSE_OID_SIZE; i++)
+    {
+      if (keyPurposeOidDataOffset[i] != KEY_PURPOSE_OID[i])
+      {
+        keyPurposeSpecificUsage = 0;
+      }
+    }
+
+    if (keyPurposeSpecificUsage)
+    {
+      switch (keyPurposeOidDataOffset[KEY_PURPOSE_OID_SIZE])
+      {
+        case KEY_PURPOSE_SERVER_AUTHENTICATION:
+        {
+          extentedKeyUsage->serverAuthentication = 1;
+          break;
+        }
+
+        case KEY_PURPOSE_CLIENT_AUTHENTICATION:
+        {
+          extentedKeyUsage->clientAuthentication = 1;
+          break;
+        }
+
+        case KEY_PURPOSE_CODE_SIGNING:
+        {
+          extentedKeyUsage->codeSigning = 1;
+          break;
+        }
+
+        case KEY_PURPOSE_EMAIL_PROTECTION:
+        {
+          extentedKeyUsage->emailProtection = 1;
+          break;
+        }
+
+        case KEY_PURPOSE_TIME_STAMPING:
+        {
+          extentedKeyUsage->timeStamping = 1;
+          break;
+        }
+
+        case KEY_PURPOSE_OCSP_SIGNING:
+        {
+          extentedKeyUsage->ocspSigning = 1;
+          break;
+        }
+
+        default:
+          LOG_INFO("Key purpose extended extension OID unkonwn");
+          return CP_ERROR;
+      }
+    }
+
+
+  } while((keyPurposeOidOffset += getNextFieldOffset(keyPurposeOidOffset)) != extensionValueEndOffset);
+
+  #if (DBGMSG == 1)
+    printf("------- BEGIN Extended Key Usage Extension -------\n");
+    extentedKeyUsage->anyUsage? printf("Any usage \n") : 0 ;
+    extentedKeyUsage->serverAuthentication? printf("TLS WWW server authentication \n") : 0 ;
+    extentedKeyUsage->clientAuthentication? printf("TLS WWW client authentication \n") : 0 ;
+    extentedKeyUsage->codeSigning? printf("Signing of downloadable executable code \n") : 0 ;
+    extentedKeyUsage->emailProtection? printf("Email protection \n") : 0 ;
+    extentedKeyUsage->timeStamping? printf("Binding the hash of an object to a time \n") : 0 ;
+    extentedKeyUsage->ocspSigning? printf("Signing OCSP responses \n") : 0 ;
+    printf("------- END Extended Key Usage Extension-------\n");
+  #endif
+
+  return CP_SUCCESS;
+}
+
 CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions)
 {
   /* the first element could be subjectUniqueID, issuerUniqueID or the extensions*/
@@ -688,124 +812,10 @@ CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * public
 
             case EXTENSION_EXTENDED_KEY_USAGE:
             {
-              extensions->extentedKeyUsage.isPresent = 1;
-              extensions->extentedKeyUsage.isCritical = isCritical;
-              extensions->extentedKeyUsage.anyUsage = 0;
-              extensions->extentedKeyUsage.serverAuthentication = 0;
-              extensions->extentedKeyUsage.clientAuthentication = 0;
-              extensions->extentedKeyUsage.codeSigning = 0;
-              extensions->extentedKeyUsage.emailProtection = 0;
-              extensions->extentedKeyUsage.timeStamping = 0;
-              extensions->extentedKeyUsage.ocspSigning = 0;
-
-              if (getTag(extensionValue) != ASN1_SEQUENCE_TAG)
+              if (parseX509ExtendedKeyUsageExtension(extensionValue, isCritical, &(extensions->extentedKeyUsage)) != CP_SUCCESS)
               {
-                LOG_ERROR("Failed to parse the extension sequence tag");
                 return CP_ERROR;
               }
-
-              /* the extension value is a sequence of 1 .. max OBJECT IDENTIFIER
-               * get the end offset of the sequence
-              */
-              CP_UINT8 * extensionValueEndOffset = extensionValue + getNextFieldOffset(extensionValue);
-
-              /* Loop through the OIDs */
-              CP_UINT8 * keyPurposeOidOffset = extensionValue + getStructuredFieldDataOffset(extensionValue);
-
-              do
-              {
-
-                if (getTag(keyPurposeOidOffset) != ASN1_OID_TAG)
-                {
-                  LOG_ERROR("Failed to parse the key purpose oid tag");
-                  return CP_ERROR;
-                }
-
-                CP_UINT8 * keyPurposeOidDataOffset = keyPurposeOidOffset + 2;
-
-                /* could be both true*/
-                CP_UINT8 keyPurposeAnyUsage = 1;
-                CP_UINT8 keyPurposeSpecificUsage = 1;
-
-                for (CP_UINT8 i = 0; i < KEY_PURPOSE_ANY_USAGE_OID_SIZE; i++)
-                {
-                  if (keyPurposeOidDataOffset[i] != KEY_PURPOSE_ANY_USAGE_OID[i])
-                  {
-                    keyPurposeAnyUsage = 0;
-                  }
-                }
-
-                /* set any usage to 1 if the oid matchs the any_usage_oid*/
-                extensions->extentedKeyUsage.anyUsage = keyPurposeAnyUsage? 1 : 0;
-
-                for (CP_UINT8 i = 0; i < KEY_PURPOSE_OID_SIZE; i++)
-                {
-                  if (keyPurposeOidDataOffset[i] != KEY_PURPOSE_OID[i])
-                  {
-                    keyPurposeSpecificUsage = 0;
-                  }
-                }
-
-                if (keyPurposeSpecificUsage)
-                {
-                  switch (keyPurposeOidDataOffset[KEY_PURPOSE_OID_SIZE])
-                  {
-                    case KEY_PURPOSE_SERVER_AUTHENTICATION:
-                    {
-                      extensions->extentedKeyUsage.serverAuthentication = 1;
-                      break;
-                    }
-
-                    case KEY_PURPOSE_CLIENT_AUTHENTICATION:
-                    {
-                      extensions->extentedKeyUsage.clientAuthentication = 1;
-                      break;
-                    }
-
-                    case KEY_PURPOSE_CODE_SIGNING:
-                    {
-                      extensions->extentedKeyUsage.codeSigning = 1;
-                      break;
-                    }
-
-                    case KEY_PURPOSE_EMAIL_PROTECTION:
-                    {
-                      extensions->extentedKeyUsage.emailProtection = 1;
-                      break;
-                    }
-
-                    case KEY_PURPOSE_TIME_STAMPING:
-                    {
-                      extensions->extentedKeyUsage.timeStamping = 1;
-                      break;
-                    }
-
-                    case KEY_PURPOSE_OCSP_SIGNING:
-                    {
-                      extensions->extentedKeyUsage.ocspSigning = 1;
-                      break;
-                    }
-
-                    default:
-                      LOG_INFO("Key purpose extended extension OID unkonwn");
-                      return CP_ERROR;
-                  }
-                }
-
-
-              } while((keyPurposeOidOffset += getNextFieldOffset(keyPurposeOidOffset)) != extensionValueEndOffset);
-
-              #if (DBGMSG == 1)
-                printf("------- BEGIN Extended Key Usage Extension -------\n");
-                extensions->extentedKeyUsage.anyUsage? printf("Any usage \n") : 0 ;
-                extensions->extentedKeyUsage.serverAuthentication? printf("TLS WWW server authentication \n") : 0 ;
-                extensions->extentedKeyUsage.clientAuthentication? printf("TLS WWW client authentication \n") : 0 ;
-                extensions->extentedKeyUsage.codeSigning? printf("Signing of downloadable executable code \n") : 0 ;
-                extensions->extentedKeyUsage.emailProtection? printf("Email protection \n") : 0 ;
-                extensions->extentedKeyUsage.timeStamping? printf("Binding the hash of an object to a time \n") : 0 ;
-                extensions->extentedKeyUsage.ocspSigning? printf("Signing OCSP responses \n") : 0 ;
-                printf("------- END Extended Key Usage Extension-------\n");
-              #endif
 
               break;
             }
