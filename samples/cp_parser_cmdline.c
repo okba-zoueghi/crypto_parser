@@ -415,6 +415,8 @@ void printX509(X509Cert * x509Cert)
   }
   printf("\n");
 
+  #if (ENABLE_X509_EXTENSIONS == 1)
+
   printf("\t X.509 Extensions (%d)\n", x509Cert->tbsCertificate.extensions.numberOfExtensions);
 
   if (x509Cert->tbsCertificate.extensions.basicConstraints.isPresent)
@@ -454,6 +456,8 @@ void printX509(X509Cert * x509Cert)
     x509Cert->tbsCertificate.extensions.extentedKeyUsage.timeStamping? printf("\t\t\t Binding the hash of an object to a time \n") : 0 ;
     x509Cert->tbsCertificate.extensions.extentedKeyUsage.ocspSigning? printf("\t\t\t Signing OCSP responses \n") : 0 ;
   }
+
+  #endif
 
   printf("\t Signature:\n");
   printf("\t\t ");

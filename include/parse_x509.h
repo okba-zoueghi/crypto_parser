@@ -107,6 +107,8 @@ extern const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE];
 #define ATTRIBUTE_TYPE_PSEUDONYM_OID 0x41
 #define ATTRIBUTE_TYPE_EMAIL_ADDRESS_OID 0x01
 
+#if (ENABLE_X509_EXTENSIONS == 1)
+
 /* Certificate Extension OID */
 #define CERTIFICATE_EXTENSION_OID_SIZE 2
 extern const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE];
@@ -127,6 +129,8 @@ extern const CP_UINT8 KEY_PURPOSE_ANY_USAGE_OID[KEY_PURPOSE_ANY_USAGE_OID_SIZE];
 #define KEY_PURPOSE_EMAIL_PROTECTION 0x04
 #define KEY_PURPOSE_TIME_STAMPING 0x08
 #define KEY_PURPOSE_OCSP_SIGNING 0x09
+
+#endif
 
 /* x509 Certificate ASN.1 structure from rfc5280
 
@@ -270,6 +274,8 @@ typedef struct
   PublicKeyInfoEnum ePublicKeyInfo;
 } PublicKeyInfo;
 
+#if (ENABLE_X509_EXTENSIONS == 1)
+
 /* Basic Constraints Extension*/
 typedef struct
 {
@@ -318,6 +324,8 @@ typedef struct
   CP_UINT8 numberOfExtensions;
 }Extensions;
 
+#endif
+
 /* TBSCertificate */
 typedef struct
 {
@@ -329,7 +337,10 @@ typedef struct
   Validity validity;
   NameAttributes subject;
   PublicKeyInfo publicKeyInfo;
-  Extensions extensions;
+
+  #if (ENABLE_X509_EXTENSIONS == 1)
+    Extensions extensions;
+  #endif
 }TbsCertificate;
 
 typedef struct
@@ -385,6 +396,7 @@ CPErrorCode parseX509SignatureValue(CP_UINT8 * x509CertSigValDerOffset, Signatur
  */
 CPErrorCode parseX509NameAttributes(CP_UINT8 * x509NameAttributesOffset, NameAttributes * nameAttributes);
 
+#if (ENABLE_X509_EXTENSIONS == 1)
 /**
  * @brief Parse the Basic Constraints Extension
  *
@@ -428,6 +440,8 @@ CPErrorCode parseX509ExtendedKeyUsageExtension(CP_UINT8 * extensionOffset, CP_UI
  * @return CP_SUCCESS or CP_ERROR
  */
 CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * publicKeyInfoOffset, Extensions * extensions);
+
+#endif
 
 /**
  * @brief Parse X.509 Certificate

@@ -40,6 +40,14 @@
 #define DBGMSG 0
 
 /*
+ * Set this MACRO to 1 to enable parsing the x509 extensions
+ * Set this MACRO to 0 to disable parsing the x509 extensions
+ * Disabling parsing the extensions makes the library and the x509 structure smaller
+ * and makes parsing the x509 certificates faster
+ */
+#define ENABLE_X509_EXTENSIONS 1
+
+/*
  * If you decide to not use the types from the C standard library, you must configure the crypto parser types according
  * to your architecture. The configuration below is a default one and may not be suitable for your architecture.
  */

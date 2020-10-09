@@ -29,9 +29,12 @@ const CP_UINT8 AINSI_X962_PUBLICKEYS_OID[AINSI_X962_OID_SIZE+1] = {0x2A, 0x86, 0
 const CP_UINT8 THAWTE_OID[THAWTE_OID_SIZE] = {0x2B, 0x65};
 const CP_UINT8 ATTRIBUTE_TYPE_OID[ATTRIBUTE_TYPE_OID_SIZE] = {0x55, 0x04};
 const CP_UINT8 PKCS_9_OID[PKCS_9_OID_SIZE] = {0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09};
-const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE] = {0x55, 0x1D};
-const CP_UINT8 KEY_PURPOSE_OID[KEY_PURPOSE_OID_SIZE] = {0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03};
-const CP_UINT8 KEY_PURPOSE_ANY_USAGE_OID[KEY_PURPOSE_ANY_USAGE_OID_SIZE] = {0x55, 0x1D, 0x25, 0x00};
+
+#if (ENABLE_X509_EXTENSIONS == 1)
+  const CP_UINT8 CERTIFICATE_EXTENSION_OID[CERTIFICATE_EXTENSION_OID_SIZE] = {0x55, 0x1D};
+  const CP_UINT8 KEY_PURPOSE_OID[KEY_PURPOSE_OID_SIZE] = {0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x03};
+  const CP_UINT8 KEY_PURPOSE_ANY_USAGE_OID[KEY_PURPOSE_ANY_USAGE_OID_SIZE] = {0x55, 0x1D, 0x25, 0x00};
+#endif
 
 CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertificate * tbsCertificate)
 {
@@ -394,15 +397,18 @@ CPErrorCode parseX509TbsCertificate(CP_UINT8 * x509TbsCertDerOffset, TbsCertific
     printf("------- END public key -------\n");
   #endif
 
+  #if (ENABLE_X509_EXTENSIONS == 1)
   if (parseX509Extensions(x509TbsCertDerOffset, publicKeyInfoOffset, &(tbsCertificate->extensions)) != CP_SUCCESS)
   {
     LOG_ERROR("Failed to parse the extensions");
     return CP_ERROR;
   }
+  #endif
 
   return CP_SUCCESS;
 }
 
+#if (ENABLE_X509_EXTENSIONS == 1)
 CPErrorCode parseX509BasicConstraintsExtension(CP_UINT8 * extensionOffset, CP_UINT8 isCritical, BasicConstraintsExtension * basicConstraints)
 {
   basicConstraints->isPresent = 1;
@@ -845,6 +851,7 @@ CPErrorCode parseX509Extensions(CP_UINT8 * tbsCertStartOffset, CP_UINT8 * public
 
   return CP_SUCCESS;
 }
+#endif
 
 CPErrorCode parseX509SignatureAlgorithm(CP_UINT8 * x509CertSigAlgDerOffset, SignatureAlgorithm * signatureAlgorithm)
 {
