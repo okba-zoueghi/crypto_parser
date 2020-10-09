@@ -58,9 +58,14 @@ openssl dsaparam -inform PEM -outform DER -in dsaparam.pem -out dsaparam.der
 The library could be configured through the header file **include/cp_config.h**.
 
 ```c
+/******************************************************************************/
+/* Configuration                                                              */
+/******************************************************************************/
+
 /*
  * Set this MACRO to 1 to use the C's standard library types defined in <stdint.h> (e.g. uint8_t, uint16_t, etc...)
- * Set this MACRO to 0 to use the CP (Crypto Parser types). This is useful if the C standard library could not be used.
+ * Set this MACRO to 0 to use the CP (Crypto Parser) types. This is useful is the C standard library is not available
+ * in your system.
  */
 #define USE_C_STDLIB_TYPES 0
 
@@ -74,7 +79,7 @@ The library could be configured through the header file **include/cp_config.h**.
  * Set this MACRO to 1 to enable parsing the x509 extensions
  * Set this MACRO to 0 to disable parsing the x509 extensions
  * Disabling parsing the extensions makes the library and the x509 structure smaller
- * and makes parsing the x509 certificates faster
+ * and makes parsing x509 certificates faster
  */
 #define ENABLE_X509_EXTENSIONS 1
 
