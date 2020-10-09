@@ -161,34 +161,58 @@ Certificate:
 	 Version:
 		 3
 	 Serial Number:
-		 2F:80:FE:23:8C:0E:22:0F:48:67:12:28:91:87:AC:B3:
+		 40:1A:C4:64:21:B3:13:21:03:0E:BB:E4:12:1A:C5:1D:
 	 Signature Algorithm:
-		 ECDSA_SHA2
+		 RSA_SSA_PKCS_V_1_5_SHA256
 	 Issuer:
 		 Country (C) : US
 		 State or Province (ST) :
 		 Organization (O) : VeriSign, Inc.
-		 Common Name (CN) : VeriSign Class 3 Public Primary Certification Authority - G4
+		 Common Name (CN) : VeriSign Universal Root Certification Authority
+		 Email Address (EM) :
 	 Validity:
-		 Not Valid before : 2007/11/05
-		 Not Valid After : 2038/01/18
+		 Not Valid before : 2008/04/02
+		 Not Valid After : 2037/12/01
 	 Subject:
 		 Country (C) : US
 		 State or Province (ST) :
 		 Organization (O) : VeriSign, Inc.
-		 Common Name (CN) : VeriSign Class 3 Public Primary Certification Authority - G4
-	 Public Key Algorithm: ECDSA
-		 04:A7:56:7A:7C:52:DA:64:9B:0E:2D:5C:D8:5E:AC:92:3D:FE:01:E6:
-		 19:4A:3D:14:03:4B:FA:60:27:20:D9:83:89:69:FA:54:C6:9A:18:5E:
-		 55:2A:64:DE:06:F6:8D:4A:3B:AD:10:3C:65:3D:90:88:04:89:E0:30:
-		 61:B3:AE:5D:01:A7:7B:DE:7C:B2:BE:CA:65:61:00:86:AE:DA:8F:7B:
-		 D0:89:AD:4D:1D:59:9A:41:B1:BC:47:80:DC:9E:62:C3:F9:
+		 Common Name (CN) : VeriSign Universal Root Certification Authority
+		 Email Address (EM) :
+	 Public Key Algorithm: RSA
+		 30:82:01:0A:02:82:01:01:00:C7:61:37:5E:B1:01:34:DB:62:D7:15:
+		 9B:FF:58:5A:8C:23:23:D6:60:8E:91:D7:90:98:83:7A:E6:58:19:38:
+		 8C:C5:F6:E5:64:85:B4:A2:71:FB:ED:BD:B9:DA:CD:4D:00:B4:C8:2D:
+		 73:A5:C7:69:71:95:1F:39:3C:B2:44:07:9C:E8:0E:FA:4D:4A:C4:21:
+		 DF:29:61:8F:32:22:61:82:C5:87:1F:6E:8C:7C:5F:16:20:51:44:D1:
+		 70:4F:57:EA:E3:1C:E3:CC:79:EE:58:D8:0E:C2:B3:45:93:C0:2C:E7:
+		 9A:17:2B:7B:00:37:7A:41:33:78:E1:33:E2:F3:10:1A:7F:87:2C:BE:
+		 F6:F5:F7:42:E2:E5:BF:87:62:89:5F:00:4B:DF:C5:DD:E4:75:44:32:
+		 41:3A:1E:71:6E:69:CB:0B:75:46:08:D1:CA:D2:2B:95:D0:CF:FB:B9:
+		 40:6B:64:8C:57:4D:FC:13:11:79:84:ED:5E:54:F6:34:9F:08:01:F3:
+		 10:25:06:17:4A:DA:F1:1D:7A:66:6B:98:60:66:A4:D9:EF:D2:2E:82:
+		 F1:F0:EF:09:EA:44:C9:15:6A:E2:03:6E:33:D3:AC:9F:55:00:C7:F6:
+		 08:6A:94:B9:5F:DC:E0:33:F1:84:60:F9:5B:27:11:B4:FC:16:F2:BB:
+		 56:6A:80:25:8D:02:03:01:00:01:
+	 X.509 Extensions (4)
+		 Basic Constraints : Critical
+			 CA : TRUE
+		 Key Usage : Critical
+			 Digital Signature
+			 Non Repudiation
 	 Signature:
-		 30:65:02:30:66:21:0C:18:26:60:5A:38:7B:56:42:E0:A7:FC:36:84:
-		 51:91:20:2C:76:4D:43:3D:C4:1D:84:23:D0:AC:D6:7C:35:06:CE:CD:
-		 69:BD:90:0D:DB:6C:48:42:1D:0E:AA:42:02:31:00:9C:3D:48:39:23:
-		 39:58:1A:15:12:59:6A:9E:EF:D5:59:B2:1D:52:2C:99:71:CD:C7:29:
-		 DF:1B:2A:61:7B:71:D1:DE:F3:C0:E5:0D:3A:4A:AA:2D:A7:D8:86:2A:
-		 DD:2E:10:
+		 4A:F8:F8:B0:03:E6:2C:67:7B:E4:94:77:63:CC:6E:4C:F9:7D:0E:0D:
+		 DC:C8:B9:35:B9:70:4F:63:FA:24:FA:6C:83:8C:47:9D:3B:63:F3:9A:
+		 F9:76:32:95:91:B1:77:BC:AC:9A:BE:B1:E4:31:21:C6:81:95:56:5A:
+		 0E:B1:C2:D4:B1:A6:59:AC:F1:63:CB:B8:4C:1D:59:90:4A:EF:90:16:
+		 28:1F:5A:AE:10:FB:81:50:38:0C:6C:CC:F1:3D:C3:F5:63:E3:B3:E3:
+		 21:C9:24:39:E9:FD:15:66:46:F4:1B:11:D0:4D:73:A3:7D:46:F9:3D:
+		 ED:A8:5F:62:D4:F1:3F:F8:E0:74:57:2B:18:9D:81:B4:C4:28:DA:94:
+		 97:A5:70:EB:AC:1D:BE:07:11:F0:D5:DB:DD:E5:8C:F0:D5:32:B0:83:
+		 E6:57:E2:8F:BF:BE:A1:AA:BF:3D:1D:B5:D4:38:EA:D7:B0:5C:3A:4F:
+		 6A:3F:8F:C0:66:6C:63:AA:E9:D9:A4:16:F4:81:D1:95:14:0E:7D:CD:
+		 95:34:D9:D2:8F:70:73:81:7B:9C:7E:BD:98:61:D8:45:87:98:90:C5:
+		 EB:86:30:C6:35:BF:F0:FF:C3:55:88:83:4B:EF:05:92:06:71:F2:B8:
+		 98:93:B7:EC:CD:82:61:F1:38:E6:4F:97:98:2A:5A:8D:
 
 ```
