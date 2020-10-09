@@ -20,6 +20,11 @@ suitable for deeply embedded environments.
 - DH parameters
 - DSA parameters
 
+For the X.509 certificates, the following extensions are supported:
+- Basic Constraints
+- Key Usage
+- Extended Key Usage
+
 **INFO** : The crypto objects **MUST** be in **DER** format.
 
 If your crypto object is in PEM format you could use OpenSSL to convert from PEM to DER like shown below.
@@ -46,6 +51,55 @@ Convert DSA parameters from PEM to DER:
 
 ```shell
 openssl dsaparam -inform PEM -outform DER -in dsaparam.pem -out dsaparam.der
+```
+
+# Configuration
+
+The library could be configured through the header file **include/cp_config.h**.
+
+```c
+/*
+ * Set this MACRO to 1 to use the C's standard library types defined in <stdint.h> (e.g. uint8_t, uint16_t, etc...)
+ * Set this MACRO to 0 to use the CP (Crypto Parser types). This is useful if the C standard library could not be used.
+ */
+#define USE_C_STDLIB_TYPES 0
+
+/*
+ * Set this MACRO to 1 to print the logs. (the printf function from the C standard library is used)
+ * Set this MACRO to 0 to deactivate the logs.
+ */
+#define DBGMSG 0
+
+/*
+ * Set this MACRO to 1 to enable parsing the x509 extensions
+ * Set this MACRO to 0 to disable parsing the x509 extensions
+ * Disabling parsing the extensions makes the library and the x509 structure smaller
+ * and makes parsing the x509 certificates faster
+ */
+#define ENABLE_X509_EXTENSIONS 1
+
+/*
+ * If you decide to not use the types from the C standard library, you must configure the crypto parser types according
+ * to your architecture. The configuration below is a default one and may not be suitable for your architecture.
+ */
+#if (USE_C_STDLIB_TYPES == 0)
+  /** 64 bit unsigned integer. */
+  typedef unsigned long CP_UINT64;
+  /** 64 bit signed integer. */
+  typedef signed long CP_SINT64;
+  /** 32 bit unsigned integer. */
+  typedef unsigned int CP_UINT32;
+  /** 16 bit unsigned integer. */
+  typedef unsigned short CP_UINT16;
+  /** 8 bit unsigned integer. */
+  typedef unsigned char CP_UINT8;
+  /** 32 bit signed integer. */
+  typedef signed int CP_SINT32;
+  /** 16 bit signed integer. */
+  typedef signed short CP_SINT16;
+  /** 8 bit signed integer. */
+  typedef signed char CP_SINT8;
+#endif
 ```
 
 # Build
